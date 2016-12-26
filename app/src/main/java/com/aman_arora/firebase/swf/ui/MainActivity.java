@@ -1,6 +1,7 @@
 package com.aman_arora.firebase.swf.ui;
 
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -13,20 +14,59 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.aman_arora.firebase.swf.R;
+import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.ui.activeLists.AddListDialogFragment;
 import com.aman_arora.firebase.swf.ui.activeLists.ShoppingListsFragment;
+import com.aman_arora.firebase.swf.ui.login.LoginActivity;
 import com.aman_arora.firebase.swf.ui.meals.AddMealDialogFragment;
 import com.aman_arora.firebase.swf.ui.meals.MealsFragment;
+import com.aman_arora.firebase.swf.utils.Constants;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private ValueEventListener mEmailValueEventListener;
+    private DatabaseReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initializeScreen();
+
+        userRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USER_LIST_URL).child(mEncodedEmail);
+
+        mEmailValueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+
+                if (user != null) setTitle(user.getName() + "'s Lists");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        userRef.addValueEventListener(mEmailValueEventListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mEmailValueEventListener != null) userRef.removeEventListener(mEmailValueEventListener);
     }
 
     @Override
@@ -34,10 +74,19 @@ public class MainActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        return super.onOptionsItemSelected(item);
+
+        if(id == R.id.action_logout){
+            if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
+            }
+        }
+        return false;
     }
 
 
@@ -49,8 +98,11 @@ public class MainActivity extends BaseActivity {
     public void initializeScreen() {
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
+
+
         SectionPagerAdapter adapter = new SectionPagerAdapter(getSupportFragmentManager());
         viewPager.setOffscreenPageLimit(2);
         viewPager.setAdapter(adapter);
@@ -58,18 +110,21 @@ public class MainActivity extends BaseActivity {
     }
 
     public void showAddListDialog(View view) {
-        DialogFragment dialog = AddListDialogFragment.newInstance();
+        DialogFragment dialog = AddListDialogFragment.newInstance(mEncodedEmail);
         dialog.show(MainActivity.this.getFragmentManager(), "AddListDialogFragment");
     }
+
     public void showAddMealDialog(View view) {
         DialogFragment dialog = AddMealDialogFragment.newInstance();
         dialog.show(MainActivity.this.getFragmentManager(), "AddMealDialogFragment");
     }
+
     public class SectionPagerAdapter extends FragmentStatePagerAdapter {
 
         public SectionPagerAdapter(FragmentManager fm) {
             super(fm);
         }
+
         @Override
         public Fragment getItem(int position) {
 

@@ -3,6 +3,7 @@ package com.aman_arora.firebase.swf.ui.ActiveListsDetails;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,9 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     private ValueEventListener valueEventListener;
     private DatabaseReference ref;
     private ListItemAdapter listItemAdapter;
+    private String userEncodeEmail;
+    private ValueEventListener mEmailValueEventListener;
+    private DatabaseReference userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +91,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
     private void addListItem() {
 
-        AddListItemDialog dialog = AddListItemDialog.newInstance(mPushId);
+        AddListItemDialog dialog = AddListItemDialog.newInstance(mPushId, mEncodedEmail);
         dialog.show(getFragmentManager(), "AddListItem");
 
     }
@@ -122,6 +126,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     }
 
     private void showEditListDialog() {
+        if(shoppingList == null) Log.d("124", "showEditListDialog:123312 ");
         EditListNameDialogFragment editListName = (EditListNameDialogFragment) EditListNameDialogFragment.newInstance(mPushId, shoppingList.getListName(), shoppingList);
         editListName.show(getFragmentManager(), "EditListName");
 
@@ -129,7 +134,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
     @Override
     public void onDestroy() {
-        ref.removeEventListener(valueEventListener);
+        if(valueEventListener != null)ref.removeEventListener(valueEventListener);
         listItemAdapter.cleanup();
         super.onDestroy();
     }

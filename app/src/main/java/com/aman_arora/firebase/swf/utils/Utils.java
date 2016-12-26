@@ -14,4 +14,14 @@ public class Utils {
         mContext = con;
     }
 
+    public static String encodeEmail(String email){
+        if(email != null) return email.replace('.', ',');
+        return null;
+    }
+
+    public static String decodeEmail(String encodeEmail){
+        if(encodeEmail != null) return encodeEmail.replace(',', '.');
+        return null;
+    }
+
 }

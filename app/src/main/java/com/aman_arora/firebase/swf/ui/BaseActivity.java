@@ -1,5 +1,6 @@
 package com.aman_arora.firebase.swf.ui;
 
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,8 @@ import com.aman_arora.firebase.swf.R;
 public abstract class BaseActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener {
 
+    protected String mEncodedEmail;
+
     protected GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -33,6 +36,10 @@ public abstract class BaseActivity extends AppCompatActivity implements
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.PREFERENCE_LOGIN_FILE, MODE_PRIVATE);
+        mEncodedEmail = sharedPreferences.getString(Constants.PREFERENCE_ENCODED_EMAIL, null);
+
     }
 
     @Override
@@ -75,4 +82,14 @@ public abstract class BaseActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
     }
+
+    protected void writeEmailToSharedPreferences(String encodedEmail, String provider){
+        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.PREFERENCE_LOGIN_FILE, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
+        editor.putString(Constants.PREFERENCE_PROVIDER, provider);
+        editor.apply();
+        editor.commit();
+    }
+
 }

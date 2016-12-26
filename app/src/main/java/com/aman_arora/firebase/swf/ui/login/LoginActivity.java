@@ -2,7 +2,6 @@ package com.aman_arora.firebase.swf.ui.login;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -20,6 +19,7 @@ import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.ui.BaseActivity;
 import com.aman_arora.firebase.swf.ui.MainActivity;
 import com.aman_arora.firebase.swf.utils.Constants;
+import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
@@ -78,8 +78,12 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) showErrorToast("User signed in");
-                else showErrorToast("Nope some bs happened!");
+                if (user != null) {
+                    showErrorToast("User signed in" + user.getUid());
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
+                }
+                else showErrorToast("Nope some bs happened!/ Signed out!");
             }
         };
 
@@ -156,16 +160,14 @@ public class LoginActivity extends BaseActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        mAuthProgressDialog.dismiss();
                         Log.d(TAG, "onComplete: " + task.isSuccessful());
                         if (task.isSuccessful()) {
-                            writeEmailToSharedPreferences(encodeEmail(mEditTextEmailInput.getText().toString()), Constants.PROVIDER_EMAIL_PASSWORD);
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            finish();
+                            writeEmailToSharedPreferences(Utils.encodeEmail(mEditTextEmailInput.getText().toString()), Constants.PROVIDER_EMAIL_PASSWORD);
                         } else {
                             showErrorToast(task.getException().getLocalizedMessage());
                             Log.d(TAG, "onComplete: Error:" + task.getException().getMessage());
                         }
+                        mAuthProgressDialog.dismiss();
                     }
                 });
 
@@ -224,6 +226,7 @@ public class LoginActivity extends BaseActivity {
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
+                        //TODO: Create user data when autheticated using google: V 0.3.09 lesson: 3/18
                         mAuthProgressDialog.dismiss();
                     }
                 });
@@ -235,16 +238,4 @@ public class LoginActivity extends BaseActivity {
         Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
     }
 
-    private void writeEmailToSharedPreferences(String encodedEmail, String provider){
-        SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.PREFERENCE_LOGIN_FILE, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
-        editor.putString(Constants.PREFERENCE_PROVIDER, provider);
-
-    } // khak encoded
-
-    private String encodeEmail(String email){
-        if(email != null) return email.replace('.', ',');
-        return null;
-    }
 }

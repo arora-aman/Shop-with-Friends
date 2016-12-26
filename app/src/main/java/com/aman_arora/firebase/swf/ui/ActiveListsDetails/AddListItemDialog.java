@@ -16,11 +16,12 @@ import java.util.HashMap;
 public class AddListItemDialog extends EditListDialogFragment {
 
     private String mPushId;
-
-    public static AddListItemDialog newInstance(String pushID){
+    private String encodedEmail;
+    public static AddListItemDialog newInstance(String pushID, String encodedEmail){
         AddListItemDialog addListItemDialog = new AddListItemDialog();
         Bundle args = EditListDialogFragment.newInstanceHelper("", R.layout.dialog_add_item);
         args.putString(Constants.KEY_PUSH_ID_ACTIVE_LIST, pushID);
+        args.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
         addListItemDialog.setArguments(args);
         return addListItemDialog;
     }
@@ -29,6 +30,7 @@ public class AddListItemDialog extends EditListDialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPushId = getArguments().getString(Constants.KEY_PUSH_ID_ACTIVE_LIST);
+        encodedEmail = getArguments().getString(Constants.PREFERENCE_ENCODED_EMAIL);
     }
 
     @Override
@@ -49,7 +51,7 @@ public class AddListItemDialog extends EditListDialogFragment {
         HashMap<String, Object> update = new HashMap<>();
         update.put(Constants.FIREBASE_ACTIVE_LISTS_LOCATION + '/' + mPushId + '/' + Constants.FIREBASE_PROPERTY_TIMESTAMP_UPDATED, timeStamp);
 
-        update.put(Constants.LIST_ITEMS_LOCATION + '/' + mPushId + '/' + newItem.getKey(), new ListItem(getInput(), "BKL"));
+        update.put(Constants.LIST_ITEMS_LOCATION + '/' + mPushId + '/' + newItem.getKey(), new ListItem(getInput(), encodedEmail));
 
         reference.updateChildren(update);
     }

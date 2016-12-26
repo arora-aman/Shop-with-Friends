@@ -24,12 +24,14 @@ import java.util.HashMap;
 
 
 public class AddListDialogFragment extends DialogFragment {
+
+    private String encodedEmail;
     EditText mEditTextListName;
 
-
-    public static AddListDialogFragment newInstance() {
+    public static AddListDialogFragment newInstance(String encodedEmail) {
         AddListDialogFragment addListDialogFragment = new AddListDialogFragment();
         Bundle bundle = new Bundle();
+        bundle.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
         addListDialogFragment.setArguments(bundle);
         return addListDialogFragment;
     }
@@ -37,7 +39,9 @@ public class AddListDialogFragment extends DialogFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        encodedEmail = getArguments().getString(Constants.PREFERENCE_ENCODED_EMAIL);
     }
 
     @Override
@@ -83,7 +87,7 @@ public class AddListDialogFragment extends DialogFragment {
         DatabaseReference newList = databaseReference.push();
         HashMap<String, Object> dateCreated = new HashMap<>();
         dateCreated.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
-        ShoppingList shoppingList = new ShoppingList("Chutiya", inputListName, dateCreated);
+        ShoppingList shoppingList = new ShoppingList(encodedEmail, inputListName, dateCreated);
         newList.setValue(shoppingList);
 
     }

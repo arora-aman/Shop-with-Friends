@@ -19,11 +19,14 @@ import android.widget.Toast;
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.ui.BaseActivity;
+import com.aman_arora.firebase.swf.ui.MainActivity;
 import com.aman_arora.firebase.swf.utils.Constants;
+import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
@@ -32,11 +35,11 @@ import java.util.HashMap;
 
 
 public class CreateAccountActivity extends BaseActivity {
-    private static final String LOG_TAG = CreateAccountActivity.class.getSimpleName();
     private ProgressDialog mAuthProgressDialog;
     private EditText mEditTextUsernameCreate, mEditTextEmailCreate, mEditTextPasswordCreate;
-    private FirebaseAuth mAuth;
     private static final String TAG = CreateAccountActivity.class.getSimpleName();
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
 
     @Override
@@ -45,12 +48,35 @@ public class CreateAccountActivity extends BaseActivity {
         setContentView(R.layout.activity_create_account);
         initializeScreen();
         mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    showErrorToast("User signed in" + user.getUid());
+                    startActivity(new Intent(CreateAccountActivity.this, MainActivity.class));
+                    finish();
+                } else showErrorToast("Nope some bs happened!/ Signed out!");
+            }
+        };
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthListener != null) mAuth.removeAuthStateListener(mAuthListener);
     }
 
 
@@ -96,15 +122,9 @@ public class CreateAccountActivity extends BaseActivity {
                             if (!task.isSuccessful()) {
                                 showErrorToast(task.getException().getLocalizedMessage());
                                 Log.d(TAG, "onComplete: Error:" + task.getException().getMessage());
-                            }else {
-                                HashMap<String, Object> timeStamp = new HashMap<String, Object>();
-                                timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
-                                User user = new User(mEditTextUsernameCreate.getText().toString(),
-                                        mEditTextEmailCreate.getText().toString(), timeStamp);
-                                DatabaseReference ref = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USER_LIST_URL);
-                                ref.push().setValue(user);
+                            } else {
+                                onRegistration();
                             }
-
                             mAuthProgressDialog.dismiss();
                         }
                     });
@@ -146,5 +166,16 @@ public class CreateAccountActivity extends BaseActivity {
         return false;
     }
 
+    private void onRegistration() {
+        String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString());
+        HashMap<String, Object> timeStamp = new HashMap<String, Object>();
+        timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
+        User user = new User(mEditTextUsernameCreate.getText().toString(),
+                encodedEmail, timeStamp);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USER_LIST_URL);
+        ref.child(encodedEmail).setValue(user);
+        writeEmailToSharedPreferences(encodedEmail, Constants.PROVIDER_EMAIL_PASSWORD);
+        startActivity(new Intent(this, MainActivity.class));
+    }
 
 }
