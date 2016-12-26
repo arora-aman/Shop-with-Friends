@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_edit_list_name"
+        android:icon="@drawable/ic_edit_white"
+        android:title="@string/action_edit_list_name"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_share_list"
+        android:animateLayoutChanges="true"
+        android:icon="@android:drawable/ic_menu_share"
+        android:orderInCategory="100"
+        android:title="@string/action_share_list"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_archive"
+        android:title="@string/action_archive" />
+    <item
+        android:id="@+id/action_remove_list"
+        android:orderInCategory="100"
+        android:title="@string/action_remove_list" />
+
+</menu>
