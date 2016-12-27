@@ -27,15 +27,19 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
     private Activity mActivity;
     private TextView itemName;
     private String mCurrentUser;
+    private String mListOwner;
     private TextView boughtBy;
     private TextView boughtByUser;
     private ImageButton deleteList;
+    private boolean showDeleteButton = false;
 
-    public ListItemAdapter(Activity activity, Class<ListItem> modelClass, int modelLayout, Query ref, String listPushId, String currentUser) {
+    public ListItemAdapter(Activity activity, Class<ListItem> modelClass, int modelLayout, Query ref,
+                           String listPushId, String currentUser, String listOwner) {
         super(activity, modelClass, modelLayout, ref);
         mListPushID = listPushId;
         mActivity = activity;
         mCurrentUser = currentUser;
+        mListOwner = listOwner;
     }
 
     @Override
@@ -45,6 +49,10 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
         boughtBy = (TextView) view.findViewById(R.id.text_view_bought_by);
         boughtByUser = (TextView) view.findViewById(R.id.text_view_bought_by_user);
         itemName.setText(model.getItemName());
+
+        if(mCurrentUser.equals(mListOwner) || mCurrentUser.equals(model.getOwner())){
+            showDeleteButton = true;
+        }else deleteList.setVisibility(View.INVISIBLE);
 
 
         deleteList.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +96,7 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
     }
 
     private void onNotBought(){
-        deleteList.setVisibility(View.VISIBLE);
+        if(showDeleteButton)deleteList.setVisibility(View.VISIBLE);
         itemName.setPaintFlags(itemName.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         boughtBy.setVisibility(View.INVISIBLE);
         boughtByUser.setVisibility(View.INVISIBLE);

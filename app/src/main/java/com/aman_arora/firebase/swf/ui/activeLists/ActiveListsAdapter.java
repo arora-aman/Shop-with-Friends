@@ -56,18 +56,20 @@ public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
 
 
         String shoppingUsersText;
-        switch (model.getShoppingUsers().size()){
-            case 1:
-                shoppingUsersText = mActivity.getString(R.string.person_shopping)
-                                        .replace("%d", "1");
-                break;
-            default:
-                shoppingUsersText = mActivity.getString(R.string.people_shopping)
-                        .replace("%d", String.valueOf(model.getShoppingUsers().size()));
-                break;
+        if(model.getShoppingUsers() != null){
+            switch (model.getShoppingUsers().size()) {
+                case 1:
+                    shoppingUsersText = mActivity.getString(R.string.person_shopping)
+                            .replace("%d", "1");
+                    break;
+                default:
+                    shoppingUsersText = mActivity.getString(R.string.people_shopping)
+                            .replace("%d", String.valueOf(model.getShoppingUsers().size()));
+                    break;
+            }
+            shoppingUsers.setText(shoppingUsersText);
         }
 
-        shoppingUsers.setText(shoppingUsersText);
 
         ((TextView)view.findViewById(R.id.text_view_list_name)).setText(model.getListName());
 

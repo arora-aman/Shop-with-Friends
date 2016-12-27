@@ -43,6 +43,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     private boolean isShopping;
     private User currentUser;
     private TextView shoppingUsersTV;
+    private String listOwner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
                 }
 
                 setTitle(shoppingList.getListName());
+                listOwner = shoppingList.getOwner();
                 HashMap<String, User> userShopping = shoppingList.getShoppingUsers();
                 if (userShopping != null && userShopping.size() > 0 && userShopping.containsKey(mEncodedEmail))
                     startShopping();
@@ -101,7 +103,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
         DatabaseReference listItemsReference = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ITEM_URL).child(mPushId);
 
-        listItemAdapter = new ListItemAdapter(this, ListItem.class, R.layout.single_active_list_item, listItemsReference, mPushId, mEncodedEmail);
+        listItemAdapter = new ListItemAdapter(this, ListItem.class, R.layout.single_active_list_item, listItemsReference, mPushId, mEncodedEmail, listOwner);
         mListDetails.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
