@@ -33,6 +33,7 @@ android {
             it.buildConfigField 'String', "PREFERENCE_LOGIN_FILE", preference_file_loginDetails
             it.buildConfigField 'String', 'PROPERTY_ITEM_BOUGHT', item_property_bought
             it.buildConfigField 'String', 'PROPERTY_ITEM_BOUGHT_BY', item_property_bought_by
+            it.buildConfigField 'String', 'PROPERY_LIST_SHOPPING_USERS', list_property_shopping_users
     }
     packagingOptions {
         exclude 'META-INF/LICENSE'

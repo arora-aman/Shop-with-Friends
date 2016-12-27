@@ -42,7 +42,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/text_view_edit_time"
+        android:id="@+id/text_view_people_shopping_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -53,4 +53,6 @@
         android:layout_marginTop="2dp"
         android:textColor="@color/light_black"
         android:textSize="@dimen/list_created_by_text_size" />
+
+
 </RelativeLayout>

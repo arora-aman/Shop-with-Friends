@@ -24,13 +24,15 @@ public class ShoppingListsFragment extends Fragment {
     private ActiveListsAdapter activeListsAdapter;
     private ValueEventListener eventListener;
     private DatabaseReference databaseRef;
+    private String mEncodedEmail;
     public ShoppingListsFragment() {
 
     }
 
-    public static ShoppingListsFragment newInstance() {
+    public static ShoppingListsFragment newInstance(String encodedEmail) {
         ShoppingListsFragment fragment = new ShoppingListsFragment();
         Bundle args = new Bundle();
+        args.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,6 +47,7 @@ public class ShoppingListsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            mEncodedEmail = getArguments().getString(Constants.PREFERENCE_ENCODED_EMAIL);
         }
     }
 
@@ -57,7 +60,7 @@ public class ShoppingListsFragment extends Fragment {
 
         databaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ACTIVE_LISTS_URL);
 
-        activeListsAdapter = new ActiveListsAdapter(getActivity(), ShoppingList.class, R.layout.single_active_list, databaseRef);
+        activeListsAdapter = new ActiveListsAdapter(getActivity(), ShoppingList.class, R.layout.single_active_list, databaseRef, mEncodedEmail);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

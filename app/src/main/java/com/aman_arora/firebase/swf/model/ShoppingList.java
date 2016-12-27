@@ -11,6 +11,7 @@ public class ShoppingList {
     private String owner, listName;
     private HashMap<String, Object> timeStamp;
     private HashMap<String, Object> timeStampLastUpdated;
+    private HashMap<String, User> shoppingUsers;
 
     public ShoppingList() {
     }
@@ -22,6 +23,7 @@ public class ShoppingList {
         HashMap<String, Object> dateModifiedObj = new HashMap<>();
         dateModifiedObj.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         timeStampLastUpdated = dateModifiedObj;
+        this.shoppingUsers = new HashMap<>();
     }
 
     public String getOwner() {
@@ -51,5 +53,9 @@ public class ShoppingList {
     @Exclude
     public long getTimeStampLong() {
         return (long)timeStamp.get(Constants.TIMESTAMP_OBJECT_KEY);
+    }
+
+    public HashMap<String, User> getShoppingUsers() {
+        return shoppingUsers;
     }
 }
