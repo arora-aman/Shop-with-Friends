@@ -28,6 +28,7 @@ public class AddListDialogFragment extends DialogFragment {
     private String encodedEmail;
     EditText mEditTextListName;
 
+
     public static AddListDialogFragment newInstance(String encodedEmail) {
         AddListDialogFragment addListDialogFragment = new AddListDialogFragment();
         Bundle bundle = new Bundle();

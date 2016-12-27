@@ -86,6 +86,9 @@ public class MainActivity extends BaseActivity {
                 finish();
             }
         }
+        if(id == R.id.action_sort){
+            startActivity(new Intent(this, SettingsActivity.class));
+        }
         return false;
     }
 

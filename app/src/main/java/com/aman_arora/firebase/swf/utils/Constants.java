@@ -34,4 +34,11 @@ public final class Constants {
 
     public static final String PREFERENCE_PROVIDER = "ProviderFortHelUsErEmail";
     public static final String PROVIDER_EMAIL_PASSWORD = "EmaiLnPassWord";
+
+    //Sort preferences
+
+    public static final String KEY_PREF_SORT_ORDER_LISTS = "PERF_SORT_ORDER_LISTS";
+    public static final String ORDER_BY_KEY = "orderByPushKey";
+
+
 }

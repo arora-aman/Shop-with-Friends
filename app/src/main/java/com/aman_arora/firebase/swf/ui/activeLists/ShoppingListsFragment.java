@@ -2,7 +2,9 @@ package com.aman_arora.firebase.swf.ui.activeLists;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import com.aman_arora.firebase.swf.ui.ActiveListsDetails.ActiveListsDetailsActiv
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 
@@ -25,6 +28,7 @@ public class ShoppingListsFragment extends Fragment {
     private ValueEventListener eventListener;
     private DatabaseReference databaseRef;
     private String mEncodedEmail;
+    public String[] sortPreference;
     public ShoppingListsFragment() {
 
     }
@@ -58,9 +62,27 @@ public class ShoppingListsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_shopping_lists, container, false);
         initializeScreen(rootView);
 
-        databaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ACTIVE_LISTS_URL);
+        sortPreference = getResources().getStringArray(R.array.pref_sortType_values_lists);
 
-        activeListsAdapter = new ActiveListsAdapter(getActivity(), ShoppingList.class, R.layout.single_active_list, databaseRef, mEncodedEmail);
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        databaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ACTIVE_LISTS_URL);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sortOrder = sharedPreferences.getString(Constants.KEY_PREF_SORT_ORDER_LISTS, Constants.ORDER_BY_KEY);
+        Query sortQuery;
+
+        if(sortOrder.equals(Constants.ORDER_BY_KEY)){
+            sortQuery = databaseRef.orderByKey();
+        }else{
+            sortQuery = databaseRef.orderByChild(sortOrder);
+        }
+
+        activeListsAdapter = new ActiveListsAdapter(getActivity(), ShoppingList.class, R.layout.single_active_list, sortQuery, mEncodedEmail);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -71,15 +93,12 @@ public class ShoppingListsFragment extends Fragment {
         });
 
         mListView.setAdapter(activeListsAdapter);
-
-        return rootView;
     }
 
     @Override
-    public void onDestroy() {
-
+    public void onPause() {
+        super.onPause();
         activeListsAdapter.cleanup();
-        super.onDestroy();
     }
 
     private void initializeScreen(View rootView) {

@@ -44,6 +44,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     private User currentUser;
     private TextView shoppingUsersTV;
     private String listOwner;
+    private boolean mCurrentUserIsOwner = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
                 setTitle(shoppingList.getListName());
                 listOwner = shoppingList.getOwner();
+                mCurrentUserIsOwner = Utils.checkIfOwner(shoppingList, mEncodedEmail);
                 HashMap<String, User> userShopping = shoppingList.getShoppingUsers();
                 if (userShopping != null && userShopping.size() > 0 && userShopping.containsKey(mEncodedEmail))
                     startShopping();
@@ -158,10 +160,19 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        String owner = shoppingList.getOwner();
-        if (Utils.encodeEmail(owner).equals(mEncodedEmail)) {
-            getMenuInflater().inflate(R.menu.menu_list_items, menu);
-        }
+
+        getMenuInflater().inflate(R.menu.menu_list_items, menu);
+
+        MenuItem remove = menu.findItem(R.id.action_remove_list);
+        MenuItem edit = menu.findItem(R.id.action_edit_list_name);
+        MenuItem share = menu.findItem(R.id.action_share_list);
+        MenuItem archive = menu.findItem(R.id.action_archive);
+
+
+        remove.setVisible(mCurrentUserIsOwner);
+        edit.setVisible(mCurrentUserIsOwner);
+        share.setVisible(false);
+        archive.setVisible(false);
 
         return true;
 
@@ -192,7 +203,6 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     }
 
     private void showEditListDialog() {
-        if (shoppingList == null) Log.d("124", "showEditListDialog:123312 ");
         EditListNameDialogFragment editListName = (EditListNameDialogFragment) EditListNameDialogFragment.newInstance(mPushId, shoppingList.getListName(), shoppingList);
         editListName.show(getFragmentManager(), "EditListName");
 
@@ -254,7 +264,10 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
     public void setWhosShopping(HashMap<String, User> shoppingUsers) {
 
-        if (shoppingUsers == null || shoppingUsers.size() <= 0 ) return;
+        if (shoppingUsers == null || shoppingUsers.size() <= 0) {
+            shoppingUsersTV.setText("");
+            return;
+        }
         String text;
 
         ArrayList<String> otherUsers = new ArrayList<>();
@@ -277,8 +290,8 @@ public class ActiveListsDetailsActivity extends BaseActivity {
                     break;
 
             }
-        }else{
-            switch (otherUsers.size()){
+        } else {
+            switch (otherUsers.size()) {
                 case 1:
                     text = getString(R.string.text_other_is_shopping)
                             .replace("%s", otherUsers.get(0));
@@ -291,7 +304,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
                 default:
                     text = getString(R.string.text_other_and_number_are_shopping)
                             .replace("%1$s", otherUsers.get(0))
-                            .replace("%2$d", String.valueOf(otherUsers.size() -1));
+                            .replace("%2$d", String.valueOf(otherUsers.size() - 1));
                     break;
             }
         }

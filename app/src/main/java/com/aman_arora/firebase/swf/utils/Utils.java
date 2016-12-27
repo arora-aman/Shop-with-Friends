@@ -2,6 +2,8 @@ package com.aman_arora.firebase.swf.utils;
 
 import android.content.Context;
 
+import com.aman_arora.firebase.swf.model.ShoppingList;
+
 import java.text.SimpleDateFormat;
 
 
@@ -14,14 +16,19 @@ public class Utils {
         mContext = con;
     }
 
-    public static String encodeEmail(String email){
-        if(email != null) return email.replace('.', ',');
+    public static String encodeEmail(String email) {
+        if (email != null) return email.replace('.', ',');
         return null;
     }
 
-    public static String decodeEmail(String encodeEmail){
-        if(encodeEmail != null) return encodeEmail.replace(',', '.');
+    public static String decodeEmail(String encodeEmail) {
+        if (encodeEmail != null) return encodeEmail.replace(',', '.');
         return null;
+    }
+
+    public static boolean checkIfOwner(ShoppingList shoppingList, String currentUserEmail) {
+        return (shoppingList.getOwner() != null &&
+                shoppingList.getOwner().equals(currentUserEmail));
     }
 
 }

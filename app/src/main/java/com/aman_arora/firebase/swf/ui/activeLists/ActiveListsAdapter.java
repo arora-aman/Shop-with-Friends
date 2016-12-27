@@ -54,7 +54,6 @@ public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
 
         }
 
-
         String shoppingUsersText;
         if(model.getShoppingUsers() != null){
             switch (model.getShoppingUsers().size()) {
@@ -70,9 +69,6 @@ public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
             shoppingUsers.setText(shoppingUsersText);
         }
 
-
         ((TextView)view.findViewById(R.id.text_view_list_name)).setText(model.getListName());
-
-
     }
 }
