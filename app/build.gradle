@@ -31,6 +31,8 @@ android {
             it.buildConfigField 'String', 'GOOGLE_OAUTH_REQUEST_TOKEN', GoogleRequestId
             it.buildConfigField 'String', 'FIREBASE_USER_LIST', Users
             it.buildConfigField 'String', "PREFERENCE_LOGIN_FILE", preference_file_loginDetails
+            it.buildConfigField 'String', 'PROPERTY_ITEM_BOUGHT', item_property_bought
+            it.buildConfigField 'String', 'PROPERTY_ITEM_BOUGHT_BY', item_property_bought_by
     }
     packagingOptions {
         exclude 'META-INF/LICENSE'

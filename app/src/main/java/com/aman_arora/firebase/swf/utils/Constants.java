@@ -17,7 +17,8 @@ public final class Constants {
     public static final String GOOGLE_OAUTH_CLIENT_ID = BuildConfig.GOOGLE_OAUTH_REQUEST_TOKEN;
     public static final String USER_LIST_LOCATION = BuildConfig.FIREBASE_USER_LIST;
     public static final String FIREBASE_USER_LIST_URL = FIREBASE_URL + '/' + USER_LIST_LOCATION;
-
+    public static final String PROPERTY_ITEM_BOUGHT = BuildConfig.PROPERTY_ITEM_BOUGHT;
+    public static final String PROPERTY_ITEM_BOUGHT_BY = BuildConfig.PROPERTY_ITEM_BOUGHT_BY;
 
     //EditListDialogFragment Key values for bundle
     public static final String KEY_LAYOUT_RESOURCE = "LAYOUT_RESOURCE";
