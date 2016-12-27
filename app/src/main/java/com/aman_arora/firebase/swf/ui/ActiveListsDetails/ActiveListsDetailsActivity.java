@@ -105,7 +105,8 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
         DatabaseReference listItemsReference = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ITEM_URL).child(mPushId);
 
-        listItemAdapter = new ListItemAdapter(this, ListItem.class, R.layout.single_active_list_item, listItemsReference, mPushId, mEncodedEmail, listOwner);
+        listItemAdapter = new ListItemAdapter(this, ListItem.class, R.layout.single_active_list_item,
+                listItemsReference.orderByChild(Constants.PROPERTY_ITEM_BOUGHT), mPushId, mEncodedEmail, listOwner);
         mListDetails.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
