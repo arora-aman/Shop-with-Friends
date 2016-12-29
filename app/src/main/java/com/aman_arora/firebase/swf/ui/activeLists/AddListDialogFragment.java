@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.model.ShoppingList;
 import com.aman_arora.firebase.swf.utils.Constants;
+import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
@@ -84,12 +85,21 @@ public class AddListDialogFragment extends DialogFragment {
 
     public void addShoppingList() {
         String inputListName = mEditTextListName.getText().toString();
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ACTIVE_LISTS_URL);
-        DatabaseReference newList = databaseReference.push();
+        if(inputListName.equals(""))return;
+        DatabaseReference newListReference = FirebaseDatabase.getInstance()
+                .getReferenceFromUrl(Constants.FIREBASE_USER_LISTS_URL).child(encodedEmail).push();
+//        DatabaseReference newList = databaseReference.push();
         HashMap<String, Object> dateCreated = new HashMap<>();
         dateCreated.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         ShoppingList shoppingList = new ShoppingList(encodedEmail, inputListName, dateCreated);
-        newList.setValue(shoppingList);
+//        newList.setValue(shoppingList);
+
+        HashMap<String, Object> newList = new HashMap<>();
+        newList = Utils.createUpdatePackage(newList, encodedEmail, newListReference.getKey(), "", shoppingList);
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReferenceFromUrl(Constants.FIREBASE_URL);
+        ref.updateChildren(newList);
+
 
     }
 

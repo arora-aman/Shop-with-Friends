@@ -19,7 +19,7 @@ import com.google.firebase.database.ValueEventListener;
 public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
 
     private String mEncodedEmail;
-    private TextView userName, shoppingUsers;
+    private TextView userName;
 
 
     public ActiveListsAdapter(Activity activity, Class<ShoppingList> modelClass, int modelLayout, Query ref, String encodedEmail) {
@@ -31,10 +31,10 @@ public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
     protected void populateView(final View view, ShoppingList model, int position) {
 
         userName = (TextView)view.findViewById(R.id.text_view_created_by_user);
-        shoppingUsers = (TextView)view.findViewById(R.id.text_view_people_shopping_count);
+        TextView shoppingUsers = (TextView) view.findViewById(R.id.text_view_people_shopping_count);
 
         DatabaseReference userRef = FirebaseDatabase.getInstance()
-                .getReferenceFromUrl(Constants.FIREBASE_USER_LIST_URL)
+                .getReferenceFromUrl(Constants.FIREBASE_USERS_URL)
                 .child(model.getOwner());
 
         if(mEncodedEmail.equals(model.getOwner()))userName.setText(mActivity.getString(R.string.text_you));

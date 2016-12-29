@@ -36,7 +36,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     private ShoppingList shoppingList;
     private String mPushId;
     private ValueEventListener currentListValueEventListener, currentUserValueEventListener;
-    private DatabaseReference activeListRef, currentUserRef;
+    private DatabaseReference userListRef, currentUserRef;
     private ListItemAdapter listItemAdapter;
     private final String TAG = "ActiveListDetails";
     private Button mButtonShopping;
@@ -61,8 +61,11 @@ public class ActiveListsDetailsActivity extends BaseActivity {
                 addListItem();
             }
         });
-        mPushId = getIntent().getStringExtra(Constants.KEY_PUSH_ID_ACTIVE_LIST);
-        activeListRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ACTIVE_LISTS_URL).child(mPushId);
+        mPushId = getIntent().getStringExtra(Constants.KEY_PUSH_ID_USER_LIST);
+        userListRef = FirebaseDatabase.getInstance()
+                .getReferenceFromUrl(Constants.FIREBASE_USER_LISTS_URL)
+                .child(mEncodedEmail)
+                .child(mPushId);
         currentListValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -75,7 +78,9 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
                 setTitle(shoppingList.getListName());
                 listOwner = shoppingList.getOwner();
-                mCurrentUserIsOwner = Utils.checkIfOwner(shoppingList, mEncodedEmail);
+                mCurrentUserIsOwner = Utils.checkIfOwner(listOwner, mEncodedEmail);
+                invalidateOptionsMenu();
+
                 HashMap<String, User> userShopping = shoppingList.getShoppingUsers();
                 if (userShopping != null && userShopping.size() > 0 && userShopping.containsKey(mEncodedEmail))
                     startShopping();
@@ -87,9 +92,9 @@ public class ActiveListsDetailsActivity extends BaseActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         };
-        activeListRef.addValueEventListener(currentListValueEventListener);
+        userListRef.addValueEventListener(currentListValueEventListener);
 
-        currentUserRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USER_LIST_URL).child(mEncodedEmail);
+        currentUserRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USERS_URL).child(mEncodedEmail);
         currentUserValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -98,12 +103,12 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "currentUser ValueListener " + databaseError.getMessage());
             }
         };
         currentUserRef.addValueEventListener(currentUserValueEventListener);
 
-        DatabaseReference listItemsReference = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ITEM_URL).child(mPushId);
+        DatabaseReference listItemsReference = FirebaseDatabase.getInstance()
+                .getReferenceFromUrl(Constants.FIREBASE_ITEM_URL).child(mPushId);
 
         listItemAdapter = new ListItemAdapter(this, ListItem.class, R.layout.single_active_list_item,
                 listItemsReference.orderByChild(Constants.PROPERTY_ITEM_BOUGHT), mPushId, mEncodedEmail, listOwner);
@@ -111,7 +116,8 @@ public class ActiveListsDetailsActivity extends BaseActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                EditListItemDialog editListItemDialog = (EditListItemDialog) EditListItemDialog.newInstance(listItemAdapter.getItem(i).getItemName(), mPushId, listItemAdapter.getRef(i).getKey());
+                EditListItemDialog editListItemDialog = (EditListItemDialog) EditListItemDialog
+                        .newInstance(listItemAdapter.getItem(i).getItemName(), mPushId, listItemAdapter.getRef(i).getKey(), shoppingList);
                 editListItemDialog.show(getFragmentManager(), "EditListItem");
 
                 return true;
@@ -154,7 +160,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
     private void addListItem() {
 
-        AddListItemDialog dialog = AddListItemDialog.newInstance(mPushId, mEncodedEmail);
+        AddListItemDialog dialog = AddListItemDialog.newInstance(mPushId, mEncodedEmail, shoppingList);
         dialog.show(getFragmentManager(), "AddListItem");
 
     }
@@ -169,7 +175,6 @@ public class ActiveListsDetailsActivity extends BaseActivity {
         MenuItem share = menu.findItem(R.id.action_share_list);
         MenuItem archive = menu.findItem(R.id.action_archive);
 
-
         remove.setVisible(mCurrentUserIsOwner);
         edit.setVisible(mCurrentUserIsOwner);
         share.setVisible(false);
@@ -183,28 +188,27 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int menuItemId = item.getItemId();
 
-
         switch (menuItemId) {
             case R.id.action_edit_list_name:
                 showEditListDialog();
-                break;
+                return true;
             case R.id.action_remove_list:
                 deleteListDialogs();
-                break;
-
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     private void deleteListDialogs() {
-        RemoveListDialogFragment removeList = RemoveListDialogFragment.newInstance(mPushId);
+        RemoveListDialogFragment removeList = RemoveListDialogFragment.newInstance(mPushId, shoppingList);
         removeList.show(getSupportFragmentManager(), "RemoveListName");
 
     }
 
     private void showEditListDialog() {
-        EditListNameDialogFragment editListName = (EditListNameDialogFragment) EditListNameDialogFragment.newInstance(mPushId, shoppingList.getListName(), shoppingList);
+        EditListNameDialogFragment editListName = (EditListNameDialogFragment)
+                EditListNameDialogFragment.newInstance(mPushId, shoppingList.getListName(), shoppingList);
         editListName.show(getFragmentManager(), "EditListName");
 
     }
@@ -212,7 +216,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         if (currentListValueEventListener != null)
-            activeListRef.removeEventListener(currentListValueEventListener);
+            userListRef.removeEventListener(currentListValueEventListener);
         if (currentUserValueEventListener != null)
             currentUserRef.removeEventListener(currentUserValueEventListener);
         listItemAdapter.cleanup();
@@ -238,15 +242,20 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     }
 
     public void toggleShopping(View view) {
-        DatabaseReference shoppingUsersRef = activeListRef.child(Constants.PROPERTY_LIST_SHOPPING_USERS)
-                .child(mEncodedEmail);
-        if (!isShopping) {
-            startShopping();
-            shoppingUsersRef.setValue(currentUser);
-        } else {
-            stopShopping();
-            shoppingUsersRef.removeValue();
+        HashMap<String, Object> updatePackage = new HashMap<>();
+        String updateKey = Constants.PROPERTY_LIST_SHOPPING_USERS + '/' + mEncodedEmail;
 
+        if (!isShopping) {
+            Utils.createUpdatePackage(updatePackage, mEncodedEmail, mPushId, updateKey, currentUser);
+            Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId);
+            firebaseRef.updateChildren(updatePackage);
+            startShopping();
+
+        } else {
+            Utils.createUpdatePackage(updatePackage,mEncodedEmail,mPushId,updateKey, null);
+            Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId);
+            firebaseRef.updateChildren(updatePackage);
+            stopShopping();
         }
     }
 
@@ -260,7 +269,6 @@ public class ActiveListsDetailsActivity extends BaseActivity {
         isShopping = true;
         mButtonShopping.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey));
         mButtonShopping.setText(getString(R.string.button_stop_shopping));
-
     }
 
     public void setWhosShopping(HashMap<String, User> shoppingUsers) {

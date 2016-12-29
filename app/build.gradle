@@ -22,7 +22,7 @@ android {
     }
     buildTypes.each {
             it.buildConfigField 'String', 'UNIQUE_FIREBASE_ROOT_URL', UniqueFirebaseRootUrl
-            it.buildConfigField 'String', 'FIREBASE_ACTIVE_LISTS_LOCATION', ActiveListsLocation
+            it.buildConfigField 'String', 'FIREBASE_USER_LISTS_LOCATION', userListsLocation
             it.buildConfigField 'String', 'FIREBASE_TIMESTAMP_LOCATION', TimeStampCreated
             it.buildConfigField 'String', 'FIREBASE_LAST_TIME_STAMP_LOCATION', TimeStampModified
             it.buildConfigField 'String', 'FIREBASE_LIST_NAME_LOCATION', ListNameLocation

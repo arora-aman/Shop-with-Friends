@@ -26,7 +26,7 @@ public class ShoppingListsFragment extends Fragment {
     private ListView mListView;
     private ActiveListsAdapter activeListsAdapter;
     private ValueEventListener eventListener;
-    private DatabaseReference databaseRef;
+    private DatabaseReference shoppingListDatabse;
     private String mEncodedEmail;
     public String[] sortPreference;
     public ShoppingListsFragment() {
@@ -71,23 +71,24 @@ public class ShoppingListsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        databaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_ACTIVE_LISTS_URL);
+        shoppingListDatabse = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USER_LISTS_URL).child(mEncodedEmail);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortOrder = sharedPreferences.getString(Constants.KEY_PREF_SORT_ORDER_LISTS, Constants.ORDER_BY_KEY);
         Query sortQuery;
 
         if(sortOrder.equals(Constants.ORDER_BY_KEY)){
-            sortQuery = databaseRef.orderByKey();
+            sortQuery = shoppingListDatabse.orderByKey();
         }else{
-            sortQuery = databaseRef.orderByChild(sortOrder);
+            sortQuery = shoppingListDatabse.orderByChild(sortOrder);
         }
 
-        activeListsAdapter = new ActiveListsAdapter(getActivity(), ShoppingList.class, R.layout.single_active_list, sortQuery, mEncodedEmail);
+        activeListsAdapter = new ActiveListsAdapter(getActivity(), ShoppingList.class,
+                R.layout.single_active_list, sortQuery, mEncodedEmail);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getContext(), ActiveListsDetailsActivity.class);
-                intent.putExtra(Constants.KEY_PUSH_ID_ACTIVE_LIST, activeListsAdapter.getRef(position).getKey());
+                intent.putExtra(Constants.KEY_PUSH_ID_USER_LIST, activeListsAdapter.getRef(position).getKey());
                 startActivity(intent);
             }
         });

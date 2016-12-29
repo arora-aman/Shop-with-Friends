@@ -8,8 +8,8 @@ import android.os.Bundle;
 
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.utils.Constants;
+import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
 
@@ -17,15 +17,17 @@ public class RemoveListItemDialogFragment extends DialogFragment {
 
     private String mListPushID;
     private String mItemPushID;
+    private String mShoppingListOwner;
 
     public RemoveListItemDialogFragment() {
     }
 
-     public static RemoveListItemDialogFragment newInstance(String listPushId, String itemPushId ) {
+     public static RemoveListItemDialogFragment newInstance(String listOwner, String listPushId, String itemPushId ) {
 
         Bundle args = new Bundle();
-        args.putString(Constants.KEY_PUSH_ID_ACTIVE_LIST, listPushId);
+        args.putString(Constants.KEY_PUSH_ID_USER_LIST, listPushId);
         args.putString(Constants.KEY_PUSH_ID_LIST_ITEM, itemPushId);
+        args.putString(Constants.KEY_SHOPPING_LIST_OWNER, listOwner);
         RemoveListItemDialogFragment fragment = new RemoveListItemDialogFragment();
         fragment.setArguments(args);
         return fragment;
@@ -35,8 +37,9 @@ public class RemoveListItemDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        mListPushID = args.getString(Constants.KEY_PUSH_ID_ACTIVE_LIST);
+        mListPushID = args.getString(Constants.KEY_PUSH_ID_USER_LIST);
         mItemPushID = args.getString(Constants.KEY_PUSH_ID_LIST_ITEM);
+        mShoppingListOwner = args.getString(Constants.KEY_SHOPPING_LIST_OWNER);
     }
 
     @Override
@@ -49,11 +52,8 @@ public class RemoveListItemDialogFragment extends DialogFragment {
             public void onClick(DialogInterface dialogInterface, int i) {
                 HashMap<String, Object> update = new HashMap<>();
 
-                HashMap<String, Object> timeStamp = new HashMap<>();
-                timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
-
-                update.put(Constants.FIREBASE_ACTIVE_LISTS_LOCATION + '/' + mListPushID + '/' +  Constants.FIREBASE_PROPERTY_TIMESTAMP_UPDATED, timeStamp);
                 update.put(Constants.LIST_ITEMS_LOCATION + '/' + mListPushID + '/' + mItemPushID, null);
+                Utils.createTimeStampUpdatePackage(update, mShoppingListOwner, mListPushID);
 
                 FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_URL).updateChildren(update);
             }

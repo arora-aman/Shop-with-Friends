@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.aman_arora.firebase.swf.R;
+import com.aman_arora.firebase.swf.model.ShoppingList;
 import com.aman_arora.firebase.swf.utils.Constants;
 
 public abstract class EditListDialogFragment extends DialogFragment {
@@ -21,10 +22,11 @@ public abstract class EditListDialogFragment extends DialogFragment {
     private int mResource;
     private String mCurrentName;
 
-    protected static Bundle newInstanceHelper(String currentName, int resource) {
+    protected static Bundle newInstanceHelper(String currentName, int resource, ShoppingList shoppingList) {
         Bundle params = new Bundle();
         params.putInt(Constants.KEY_LAYOUT_RESOURCE, resource);
         params.putString(Constants.KEY_CURRENT_NAME, currentName);
+        params.putString(Constants.KEY_SHOPPING_LIST_OWNER, shoppingList.getOwner());
         return params;
     }
 

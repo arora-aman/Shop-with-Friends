@@ -58,7 +58,7 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
         deleteList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                RemoveListItemDialogFragment dialog = RemoveListItemDialogFragment.newInstance(mListPushID, getRef(position).getKey());
+                RemoveListItemDialogFragment dialog = RemoveListItemDialogFragment.newInstance(mListOwner, mListPushID, getRef(position).getKey());
                 dialog.show(mActivity.getFragmentManager(), "RemoveListItem");
 
             }
@@ -76,7 +76,7 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
         if (mCurrentUser.equals(listItem.getBoughtBy())) boughtByUser.setText(R.string.text_you);
         else {
             DatabaseReference userRef = FirebaseDatabase.getInstance()
-                    .getReferenceFromUrl(Constants.FIREBASE_USER_LIST_URL).child(mCurrentUser);
+                    .getReferenceFromUrl(Constants.FIREBASE_USERS_URL).child(mCurrentUser);
 
             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override

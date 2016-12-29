@@ -2,9 +2,10 @@ package com.aman_arora.firebase.swf.utils;
 
 import android.content.Context;
 
-import com.aman_arora.firebase.swf.model.ShoppingList;
+import com.google.firebase.database.ServerValue;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 
 public class Utils {
@@ -26,9 +27,26 @@ public class Utils {
         return null;
     }
 
-    public static boolean checkIfOwner(ShoppingList shoppingList, String currentUserEmail) {
-        return (shoppingList.getOwner() != null &&
-                shoppingList.getOwner().equals(currentUserEmail));
+    public static boolean checkIfOwner(String listOwner, String currentUserEmail) {
+        return (listOwner != null &&
+                listOwner.equals(currentUserEmail));
     }
 
+    public static HashMap<String, Object> createUpdatePackage(HashMap<String, Object> update,
+                                            String owner, String listID, String key, Object value){
+
+        update.put(Constants.FIREBASE_USER_LISTS_LOCATION + "/" + owner + "/" + listID + "/" + key, value);
+        return update;
+
+    }
+    public static HashMap<String, Object> createTimeStampUpdatePackage(HashMap<String, Object> update,
+                                                                    String owner, String listID){
+
+        HashMap<String, Object> timeStamp = new HashMap<>();
+        timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
+        update.put(Constants.FIREBASE_USER_LISTS_LOCATION + "/" + owner + "/" + listID +
+                "/" + Constants.FIREBASE_PROPERTY_TIMESTAMP_UPDATED, timeStamp);
+        return update;
+
+    }
 }

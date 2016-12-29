@@ -172,7 +172,7 @@ public class CreateAccountActivity extends BaseActivity {
         timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         User user = new User(mEditTextUsernameCreate.getText().toString(),
                 encodedEmail, timeStamp);
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USER_LIST_URL);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USERS_URL);
         ref.child(encodedEmail).setValue(user);
         writeEmailToSharedPreferences(encodedEmail, Constants.PROVIDER_EMAIL_PASSWORD);
         startActivity(new Intent(this, MainActivity.class));
