@@ -20,6 +20,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+
 public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
 
     private static final String TAG = "ListItemAdapter";
@@ -32,14 +34,22 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
     private TextView boughtByUser;
     private ImageButton deleteList;
     private boolean showDeleteButton = false;
+    private HashMap<String, User> mSharedWithUsersList;
 
     public ListItemAdapter(Activity activity, Class<ListItem> modelClass, int modelLayout, Query ref,
-                           String listPushId, String currentUser, String listOwner) {
+                           String listPushId, String currentUser) {
         super(activity, modelClass, modelLayout, ref);
         mListPushID = listPushId;
         mActivity = activity;
         mCurrentUser = currentUser;
-        mListOwner = listOwner;
+    }
+
+    public void setListOwner(String listOwner) {
+        this.mListOwner = listOwner;
+    }
+
+    public void setSharedWithUsersList(HashMap<String, User> sharedWithUsersList) {
+        this.mSharedWithUsersList = sharedWithUsersList;
     }
 
     @Override
@@ -55,10 +65,12 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
         }else deleteList.setVisibility(View.INVISIBLE);
 
 
+
         deleteList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                RemoveListItemDialogFragment dialog = RemoveListItemDialogFragment.newInstance(mListOwner, mListPushID, getRef(position).getKey());
+                RemoveListItemDialogFragment dialog = RemoveListItemDialogFragment
+                        .newInstance(mListOwner, mListPushID, getRef(position).getKey(), mSharedWithUsersList);
                 dialog.show(mActivity.getFragmentManager(), "RemoveListItem");
 
             }
@@ -87,7 +99,9 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG, "onCancelled: " + databaseError.getMessage());
+                    Log.e(mActivity.getClass().getSimpleName(),
+                            mActivity.getString(R.string.log_error_the_read_failed) +
+                                    databaseError.getMessage());
 
                 }
             });

@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.model.ShoppingList;
+import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.firebase.database.DatabaseReference;
@@ -15,13 +16,15 @@ import java.util.HashMap;
 
 public class EditListNameDialogFragment extends  EditListDialogFragment {
     private String mPushID;
-    private String mListOwner;
     private String mOriginalName;
-    private String mCurrentOwner;
+    private String mListOwner;
+    private HashMap<String, User> mSharedWithUsersList;
 
-    public static EditListDialogFragment newInstance(String pushID, String currentName, ShoppingList shoppingList){
+    public static EditListDialogFragment newInstance(String pushID, String currentName, ShoppingList shoppingList,
+                                    String encodedEmail,  HashMap<String, User> sharedWithList){
         EditListDialogFragment editListDialogFragment = new EditListNameDialogFragment();
-        Bundle params = EditListDialogFragment.newInstanceHelper(currentName, R.layout.dialog_edit_list, shoppingList);
+        Bundle params = EditListDialogFragment.newInstanceHelper(currentName, R.layout.dialog_edit_list,
+                shoppingList, encodedEmail, sharedWithList);
         params.putString(Constants.KEY_PUSH_ID_USER_LIST, pushID);
         editListDialogFragment.setArguments(params);
         return  editListDialogFragment;
@@ -33,8 +36,9 @@ public class EditListNameDialogFragment extends  EditListDialogFragment {
         Bundle params = getArguments();
         mPushID = params.getString(Constants.KEY_PUSH_ID_USER_LIST);
         mListOwner = params.getString(Constants.KEY_SHOPPING_LIST_OWNER);
-        mCurrentOwner = getArguments().getString(Constants.KEY_SHOPPING_LIST_OWNER);
+        mListOwner = getArguments().getString(Constants.KEY_SHOPPING_LIST_OWNER);
         mOriginalName = getArguments().getString(Constants.KEY_CURRENT_NAME);
+        mSharedWithUsersList = (HashMap<String, User>) getArguments().getSerializable(Constants.KEY_SHARED_WITH_USERS);
     }
 
     @Override
@@ -53,9 +57,8 @@ public class EditListNameDialogFragment extends  EditListDialogFragment {
 
         HashMap<String, Object> updatedShoppingList = new HashMap<>();
 
-        Utils.createUpdatePackage(updatedShoppingList, mCurrentOwner, mPushID, Constants.LIST_NAME_LOCATION, newName);
-        Utils.createTimeStampUpdatePackage(updatedShoppingList, mCurrentOwner, mPushID);
-
+        Utils.createUpdatePackage(updatedShoppingList, mListOwner, mPushID, Constants.LIST_NAME_LOCATION, newName, mSharedWithUsersList);
+        Utils.createTimeStampUpdatePackage(updatedShoppingList, mListOwner, mPushID, mSharedWithUsersList);
         ref.updateChildren(updatedShoppingList);
     }
 

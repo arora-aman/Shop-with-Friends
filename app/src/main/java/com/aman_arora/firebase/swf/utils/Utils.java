@@ -2,6 +2,7 @@ package com.aman_arora.firebase.swf.utils;
 
 import android.content.Context;
 
+import com.aman_arora.firebase.swf.model.User;
 import com.google.firebase.database.ServerValue;
 
 import java.text.SimpleDateFormat;
@@ -33,19 +34,32 @@ public class Utils {
     }
 
     public static HashMap<String, Object> createUpdatePackage(HashMap<String, Object> update,
-                                            String owner, String listID, String key, Object value){
+                                                              String owner, String listID, String key, Object value,
+                                                              HashMap<String, User> sharedUsers) {
+
 
         update.put(Constants.FIREBASE_USER_LISTS_LOCATION + "/" + owner + "/" + listID + "/" + key, value);
+
+        if (sharedUsers != null) {
+            for (User user : sharedUsers.values()) {
+                if (user == null) break;
+                update.put(Constants.FIREBASE_USER_LISTS_LOCATION + "/" + user.getEmail() +
+                        "/" + listID + "/" + key, value);
+            }
+        }
+
         return update;
 
     }
+
     public static HashMap<String, Object> createTimeStampUpdatePackage(HashMap<String, Object> update,
-                                                                    String owner, String listID){
+                                                                       String owner, String listID,
+                                                                       HashMap<String, User> sharedWith) {
 
         HashMap<String, Object> timeStamp = new HashMap<>();
         timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
-        update.put(Constants.FIREBASE_USER_LISTS_LOCATION + "/" + owner + "/" + listID +
-                "/" + Constants.FIREBASE_PROPERTY_TIMESTAMP_UPDATED, timeStamp);
+        createUpdatePackage(update, owner, listID, Constants.FIREBASE_PROPERTY_TIMESTAMP_UPDATED,
+                timeStamp, sharedWith);
         return update;
 
     }

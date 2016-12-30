@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.model.ListItem;
 import com.aman_arora.firebase.swf.model.ShoppingList;
+import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.firebase.database.DatabaseReference;
@@ -19,11 +20,13 @@ public class AddListItemDialog extends EditListDialogFragment {
     private String mPushId;
     private String encodedEmail;
     private String mCurrentOwner;
-    public static AddListItemDialog newInstance(String pushID, String encodedEmail, ShoppingList shoppingList){
+    private HashMap<String, User> mSharedWithUsersList;
+    public static AddListItemDialog newInstance(String pushID, String encodedEmail,
+                                                ShoppingList shoppingList, HashMap<String, User> sharedWithList){
         AddListItemDialog addListItemDialog = new AddListItemDialog();
-        Bundle args = EditListDialogFragment.newInstanceHelper("", R.layout.dialog_add_item, shoppingList);
+        Bundle args = EditListDialogFragment.newInstanceHelper("", R.layout.dialog_add_item,
+                shoppingList, encodedEmail, sharedWithList);
         args.putString(Constants.KEY_PUSH_ID_USER_LIST, pushID);
-        args.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
         addListItemDialog.setArguments(args);
         return addListItemDialog;
     }
@@ -34,6 +37,7 @@ public class AddListItemDialog extends EditListDialogFragment {
         mPushId = getArguments().getString(Constants.KEY_PUSH_ID_USER_LIST);
         encodedEmail = getArguments().getString(Constants.PREFERENCE_ENCODED_EMAIL);
         mCurrentOwner = getArguments().getString(Constants.KEY_SHOPPING_LIST_OWNER);
+        mSharedWithUsersList = (HashMap<String, User>) getArguments().getSerializable(Constants.KEY_SHARED_WITH_USERS);
     }
 
     @Override
@@ -50,9 +54,8 @@ public class AddListItemDialog extends EditListDialogFragment {
                 .getReferenceFromUrl(Constants.FIREBASE_ITEM_URL).child(mPushId).push();
 
         HashMap<String, Object> update = new HashMap<>();
-
         update.put(Constants.LIST_ITEMS_LOCATION + '/' + mPushId + '/' + newItem.getKey(), new ListItem(getInput(), encodedEmail));
-        update = Utils.createTimeStampUpdatePackage(update, mCurrentOwner, mPushId);
+        update = Utils.createTimeStampUpdatePackage(update, mCurrentOwner, mPushId, mSharedWithUsersList);
 
         reference.updateChildren(update);
     }

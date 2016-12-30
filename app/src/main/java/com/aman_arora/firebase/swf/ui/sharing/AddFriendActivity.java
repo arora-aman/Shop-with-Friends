@@ -7,11 +7,18 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.aman_arora.firebase.swf.R;
+import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.ui.BaseActivity;
+import com.aman_arora.firebase.swf.utils.Constants;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class AddFriendActivity extends BaseActivity {
     private EditText mEditTextAddFriendEmail;
     private ListView mListViewAutocomplete;
+
+    private DatabaseReference allUsersRef;
+    private AutocompleteFriendAdapter adapter;
 
 
 
@@ -20,6 +27,15 @@ public class AddFriendActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_friend);
         initializeScreen();
+
+        allUsersRef = FirebaseDatabase.getInstance()
+                .getReferenceFromUrl(Constants.FIREBASE_USERS_URL);
+
+        adapter = new AutocompleteFriendAdapter(this, User.class, R.layout.single_autocomplete_item,
+                allUsersRef, mEncodedEmail);
+
+        mListViewAutocomplete.setAdapter(adapter);
+
 
         /**
          * Set interactive bits, such as click events/adapters
@@ -42,7 +58,9 @@ public class AddFriendActivity extends BaseActivity {
 
     @Override
     public void onDestroy() {
+
         super.onDestroy();
+        adapter.cleanup();
     }
 
     /**
@@ -58,4 +76,5 @@ public class AddFriendActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
+
 }

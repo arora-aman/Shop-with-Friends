@@ -59,7 +59,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity"/>
         </activity>
-    
+
+        <activity android:name=".ui.sharing.ShareListActivity"
+            android:label="@string/title_activity_share_list"/>
+
+
+        <activity android:name=".ui.sharing.AddFriendActivity"
+            android:label="@string/title_activity_add_friend"/>
+
     </application>
 
 </manifest>

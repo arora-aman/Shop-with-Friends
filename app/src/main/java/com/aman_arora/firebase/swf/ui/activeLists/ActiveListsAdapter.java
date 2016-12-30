@@ -1,6 +1,7 @@
 package com.aman_arora.firebase.swf.ui.activeLists;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -48,7 +49,9 @@ public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
+                    Log.e(mActivity.getClass().getSimpleName(),
+                            mActivity.getString(R.string.log_error_the_read_failed) +
+                                    databaseError.getMessage());
                 }
             });
 
@@ -56,6 +59,7 @@ public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
 
         String shoppingUsersText;
         if(model.getShoppingUsers() != null){
+            //TODO: use format of getString(ID, replacements) just like printf(); instead of using replace
             switch (model.getShoppingUsers().size()) {
                 case 1:
                     shoppingUsersText = mActivity.getString(R.string.person_shopping)

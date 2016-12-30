@@ -1,5 +1,6 @@
 package com.aman_arora.firebase.swf.ui.ActiveListsDetails;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -18,6 +19,7 @@ import com.aman_arora.firebase.swf.model.ListItem;
 import com.aman_arora.firebase.swf.model.ShoppingList;
 import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.ui.BaseActivity;
+import com.aman_arora.firebase.swf.ui.sharing.ShareListActivity;
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.firebase.database.DataSnapshot;
@@ -36,7 +38,8 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     private ShoppingList shoppingList;
     private String mPushId;
     private ValueEventListener currentListValueEventListener, currentUserValueEventListener;
-    private DatabaseReference userListRef, currentUserRef;
+    private ValueEventListener sharedWithValueEventListener;
+    private DatabaseReference userListRef, currentUserRef, sharedWithRef;
     private ListItemAdapter listItemAdapter;
     private final String TAG = "ActiveListDetails";
     private Button mButtonShopping;
@@ -45,6 +48,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
     private TextView shoppingUsersTV;
     private String listOwner;
     private boolean mCurrentUserIsOwner = false;
+    private HashMap<String, User> sharedUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +58,8 @@ public class ActiveListsDetailsActivity extends BaseActivity {
         initialise();
 
         invalidateOptionsMenu();
+
+        sharedUsers = new HashMap<>();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +84,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
                 setTitle(shoppingList.getListName());
                 listOwner = shoppingList.getOwner();
+                listItemAdapter.setListOwner(listOwner);
                 mCurrentUserIsOwner = Utils.checkIfOwner(listOwner, mEncodedEmail);
                 invalidateOptionsMenu();
 
@@ -90,6 +97,8 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG,ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
+                        + databaseError.getMessage());
             }
         };
         userListRef.addValueEventListener(currentListValueEventListener);
@@ -103,23 +112,51 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG,ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
+                        + databaseError.getMessage());
             }
         };
         currentUserRef.addValueEventListener(currentUserValueEventListener);
+
+        sharedWithRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_SHARED_WITH_URL)
+                .child(mPushId);
+
+        sharedWithValueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot sharedUser: dataSnapshot.getChildren()){
+                    sharedUsers.put(sharedUser.getKey(), sharedUser.getValue(User.class));
+                }
+                listItemAdapter.setSharedWithUsersList(sharedUsers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG,ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
+                        + databaseError.getMessage());
+            }
+        };
+
+        sharedWithRef.addValueEventListener(sharedWithValueEventListener);
 
         DatabaseReference listItemsReference = FirebaseDatabase.getInstance()
                 .getReferenceFromUrl(Constants.FIREBASE_ITEM_URL).child(mPushId);
 
         listItemAdapter = new ListItemAdapter(this, ListItem.class, R.layout.single_active_list_item,
-                listItemsReference.orderByChild(Constants.PROPERTY_ITEM_BOUGHT), mPushId, mEncodedEmail, listOwner);
+                listItemsReference.orderByChild(Constants.PROPERTY_ITEM_BOUGHT),
+                mPushId, mEncodedEmail);
         mListDetails.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ListItem listItem = listItemAdapter.getItem(i);
 
-                EditListItemDialog editListItemDialog = (EditListItemDialog) EditListItemDialog
-                        .newInstance(listItemAdapter.getItem(i).getItemName(), mPushId, listItemAdapter.getRef(i).getKey(), shoppingList);
-                editListItemDialog.show(getFragmentManager(), "EditListItem");
+                if(mEncodedEmail.equals(listItem.getOwner())) {
 
+                    EditListItemDialog editListItemDialog = (EditListItemDialog) EditListItemDialog
+                            .newInstance(listItemAdapter.getItem(i).getItemName(), mPushId,
+                                    listItemAdapter.getRef(i).getKey(), shoppingList, mEncodedEmail, sharedUsers);
+                    editListItemDialog.show(getFragmentManager(), "EditListItem");
+                }
                 return true;
             }
         });
@@ -160,7 +197,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
     private void addListItem() {
 
-        AddListItemDialog dialog = AddListItemDialog.newInstance(mPushId, mEncodedEmail, shoppingList);
+        AddListItemDialog dialog = AddListItemDialog.newInstance(mPushId, mEncodedEmail, shoppingList, sharedUsers);
         dialog.show(getFragmentManager(), "AddListItem");
 
     }
@@ -177,7 +214,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
         remove.setVisible(mCurrentUserIsOwner);
         edit.setVisible(mCurrentUserIsOwner);
-        share.setVisible(false);
+        share.setVisible(mCurrentUserIsOwner);
         archive.setVisible(false);
 
         return true;
@@ -195,20 +232,26 @@ public class ActiveListsDetailsActivity extends BaseActivity {
             case R.id.action_remove_list:
                 deleteListDialogs();
                 return true;
+            case R.id.action_share_list:
+                Intent intent =  new Intent(this,ShareListActivity.class);
+                intent.putExtra(Constants.KEY_PUSH_ID_USER_LIST, mPushId);
+                startActivity(intent);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     private void deleteListDialogs() {
-        RemoveListDialogFragment removeList = RemoveListDialogFragment.newInstance(mPushId, shoppingList);
+        RemoveListDialogFragment removeList = RemoveListDialogFragment.newInstance(mPushId, shoppingList, sharedUsers);
         removeList.show(getSupportFragmentManager(), "RemoveListName");
 
     }
 
     private void showEditListDialog() {
         EditListNameDialogFragment editListName = (EditListNameDialogFragment)
-                EditListNameDialogFragment.newInstance(mPushId, shoppingList.getListName(), shoppingList);
+                EditListNameDialogFragment.newInstance(mPushId, shoppingList.getListName(),
+                        shoppingList, mEncodedEmail, sharedUsers);
         editListName.show(getFragmentManager(), "EditListName");
 
     }
@@ -219,6 +262,8 @@ public class ActiveListsDetailsActivity extends BaseActivity {
             userListRef.removeEventListener(currentListValueEventListener);
         if (currentUserValueEventListener != null)
             currentUserRef.removeEventListener(currentUserValueEventListener);
+        if (sharedWithValueEventListener != null)
+            sharedWithRef.removeEventListener(sharedWithValueEventListener);
         listItemAdapter.cleanup();
         super.onDestroy();
     }
@@ -246,14 +291,14 @@ public class ActiveListsDetailsActivity extends BaseActivity {
         String updateKey = Constants.PROPERTY_LIST_SHOPPING_USERS + '/' + mEncodedEmail;
 
         if (!isShopping) {
-            Utils.createUpdatePackage(updatePackage, mEncodedEmail, mPushId, updateKey, currentUser);
-            Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId);
+            Utils.createUpdatePackage(updatePackage, mEncodedEmail, mPushId, updateKey, currentUser, sharedUsers);
+            Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId, sharedUsers);
             firebaseRef.updateChildren(updatePackage);
             startShopping();
 
         } else {
-            Utils.createUpdatePackage(updatePackage,mEncodedEmail,mPushId,updateKey, null);
-            Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId);
+            Utils.createUpdatePackage(updatePackage,mEncodedEmail,mPushId,updateKey, null, sharedUsers);
+            Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId, sharedUsers);
             firebaseRef.updateChildren(updatePackage);
             stopShopping();
         }
@@ -283,7 +328,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
         for (User users : shoppingUsers.values())
             if (users != null && !users.getEmail().equals(mEncodedEmail))
                 otherUsers.add(users.getName());
-
+        //TODO: use format of getString(ID, replacements) just like printf(); instead of using replace
         if (isShopping) {
             switch (otherUsers.size()) {
                 case 0:

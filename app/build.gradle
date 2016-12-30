@@ -34,6 +34,8 @@ android {
             it.buildConfigField 'String', 'PROPERTY_ITEM_BOUGHT', item_property_bought
             it.buildConfigField 'String', 'PROPERTY_ITEM_BOUGHT_BY', item_property_bought_by
             it.buildConfigField 'String', 'PROPERY_LIST_SHOPPING_USERS', list_property_shopping_users
+            it.buildConfigField 'String', 'USER_FRIENDS_LOCATION', usersFriends
+            it.buildConfigField 'String', 'SHARED_WITH_LOCATION', sharedWith
     }
     packagingOptions {
         exclude 'META-INF/LICENSE'

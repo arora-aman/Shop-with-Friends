@@ -14,7 +14,10 @@ import android.widget.TextView;
 
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.model.ShoppingList;
+import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.utils.Constants;
+
+import java.util.HashMap;
 
 public abstract class EditListDialogFragment extends DialogFragment {
 
@@ -22,11 +25,14 @@ public abstract class EditListDialogFragment extends DialogFragment {
     private int mResource;
     private String mCurrentName;
 
-    protected static Bundle newInstanceHelper(String currentName, int resource, ShoppingList shoppingList) {
+    protected static Bundle newInstanceHelper(String currentName, int resource, ShoppingList shoppingList,
+                                              String encodedEmail, HashMap<String, User> sharedWithList) {
         Bundle params = new Bundle();
         params.putInt(Constants.KEY_LAYOUT_RESOURCE, resource);
         params.putString(Constants.KEY_CURRENT_NAME, currentName);
         params.putString(Constants.KEY_SHOPPING_LIST_OWNER, shoppingList.getOwner());
+        params.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
+        params.putSerializable(Constants.KEY_SHARED_WITH_USERS, sharedWithList);
         return params;
     }
 

@@ -95,7 +95,7 @@ public class AddListDialogFragment extends DialogFragment {
 //        newList.setValue(shoppingList);
 
         HashMap<String, Object> newList = new HashMap<>();
-        newList = Utils.createUpdatePackage(newList, encodedEmail, newListReference.getKey(), "", shoppingList);
+        newList = Utils.createUpdatePackage(newList, encodedEmail, newListReference.getKey(), "", shoppingList, null);
         DatabaseReference ref = FirebaseDatabase.getInstance()
                 .getReferenceFromUrl(Constants.FIREBASE_URL);
         ref.updateChildren(newList);
