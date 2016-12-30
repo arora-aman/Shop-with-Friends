@@ -46,6 +46,7 @@
       -->
     <!-- Activity Title  -->
     <string name="title_activity_list_details">List Details</string>
+    <string name="hint_add_item">Add an item</string>
 
     <!-- Menu Items -->
     <string name="action_edit_list_name">Edit list name</string>
@@ -96,6 +97,7 @@
     <!-- Activity Titles  -->
     <string name="title_activity_archived_lists">Archived Lists</string>
     <string name="title_activity_archived_list_details">Archived List Details</string>
+
 
     <!-- Archive Dialogs  -->
     <string name="dialog_title_copy_list">Copy List</string>
@@ -203,13 +205,14 @@
     <string name="pref_sort_list_label_list_name_entry">List Name</string>
     <string name="pref_sort_list_label_owner_entry">Owner Email</string>
     <string name="pref_sort_list_label_most_recently_changed_entry">Most Recently Changed</string>
-    <string name="title_activity_active_lists_details">ActiveListsDetailsActivity</string>
-    <string name="hint_add_item">Add an item</string>
+
 
     <!-- Values -->
 
     <string name="sort_by_publish_time_value">orderByPushKey</string>
     <string name="sort_by_list_name_value">listName</string>
     <string name="sort_by_owner_value">owner</string>
+    <string name="sort_by_most_recent_changed_entry">timeStampLastUpdated/date</string>
+
 
 </resources>

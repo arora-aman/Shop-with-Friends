@@ -71,7 +71,8 @@ public class ShoppingListsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        shoppingListDatabse = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USER_LISTS_URL).child(mEncodedEmail);
+        shoppingListDatabse = FirebaseDatabase.getInstance()
+                .getReferenceFromUrl(Constants.FIREBASE_USER_LISTS_URL).child(mEncodedEmail);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortOrder = sharedPreferences.getString(Constants.KEY_PREF_SORT_ORDER_LISTS, Constants.ORDER_BY_KEY);
         Query sortQuery;

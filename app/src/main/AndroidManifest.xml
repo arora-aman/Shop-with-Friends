@@ -25,7 +25,7 @@
        
         <activity
             android:name=".ui.ActiveListsDetails.ActiveListsDetailsActivity"
-            android:label="@string/title_activity_active_lists_details"
+            android:label="@string/title_activity_list_details"
             android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme">
             <meta-data
