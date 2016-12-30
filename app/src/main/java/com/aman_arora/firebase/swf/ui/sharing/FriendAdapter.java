@@ -20,11 +20,12 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class FriendAdapter extends FirebaseListAdapter<User> {
     private static final String LOG_TAG = FriendAdapter.class.getSimpleName();
     private String mListPushID;
-    private HashMap <DatabaseReference, ValueEventListener> mLocationListenerMap;
+    private HashMap<DatabaseReference, ValueEventListener> mLocationListenerMap;
     private ImageButton toggleShare;
     private boolean isShared;
     private HashMap<String, User> mSharedUsersList;
@@ -38,6 +39,7 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
         this.mActivity = activity;
         this.mListPushID = listPushID;
         this.firebaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_URL);
+        mLocationListenerMap = new HashMap<>();
     }
 
 
@@ -55,7 +57,8 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
 
     /**
      * This method does the tricky job of adding or removing a friend from the sharedWith list.
-     * @param addFriend This is true if the friend is being added, false is the friend is being removed.
+     *
+     * @param addFriend           This is true if the friend is being added, false is the friend is being removed.
      * @param friendToAddOrRemove This is the friend to either add or remove
      * @return
      */
@@ -65,11 +68,11 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
         HashMap<String, Object> update = new HashMap<>();
         User updateValue;
         ShoppingList updateList;
-        if(addFriend){
+        if (addFriend) {
             mShoppingList.setTimestampLastChangedToNow();
             updateValue = friendToAddOrRemove;
             updateList = mShoppingList;
-        }else{
+        } else {
             updateValue = null;
             updateList = null;
             newSharedWith.remove(friendToAddOrRemove.getEmail());
@@ -90,6 +93,12 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
     @Override
     public void cleanup() {
         super.cleanup();
+        for (Map.Entry<DatabaseReference, ValueEventListener> entry : mLocationListenerMap.entrySet()) {
+            ValueEventListener valueEventListener = entry.getValue();
+            DatabaseReference databaseReference = entry.getKey();
+            if (valueEventListener != null)
+                databaseReference.removeEventListener(valueEventListener);
+        }
     }
 
     @Override
@@ -101,44 +110,48 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
         DatabaseReference sharedWithFriend = FirebaseDatabase.getInstance().getReferenceFromUrl(
                 Constants.FIREBASE_SHARED_WITH_URL).child(mListPushID).child(user.getEmail());
 
-        sharedWithFriend.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue(User.class) == null){
-                    toggleShare.setImageDrawable(
-                            mActivity.getResources().getDrawable(R.drawable.icon_add_friend));
-                    toggleShare.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            HashMap<String, Object> updatedUserData =
-                                    updateFriendInSharedWith(true, user);
+        ValueEventListener sharedWithValueEventListener =
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue(User.class) == null) {
+                            toggleShare.setImageDrawable(
+                                    mActivity.getResources().getDrawable(R.drawable.icon_add_friend));
+                            toggleShare.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    HashMap<String, Object> updatedUserData =
+                                            updateFriendInSharedWith(true, user);
 
-                            firebaseRef.updateChildren(updatedUserData);
+                                    firebaseRef.updateChildren(updatedUserData);
+                                }
+                            });
+                        } else {
+                            toggleShare.setImageDrawable(
+                                    mActivity.getResources().getDrawable(R.drawable.ic_shared_check));
+                            toggleShare.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    HashMap<String, Object> updatedUserData =
+                                            updateFriendInSharedWith(false, user);
+                                    firebaseRef.updateChildren(updatedUserData);
+                                }
+                            });
                         }
-                    });
-                }else{
-                    toggleShare.setImageDrawable(
-                            mActivity.getResources().getDrawable(R.drawable.ic_shared_check));
-                    toggleShare.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            HashMap<String, Object> updatedUserData =
-                                    updateFriendInSharedWith(false, user);
-                            firebaseRef.updateChildren(updatedUserData);
-                        }
-                    });
-                }
-            }
+                    }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(mActivity.getClass().getSimpleName(),
-                        mActivity.getString(R.string.log_error_the_read_failed) +
-                                databaseError.getMessage());
-            }
-        });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(mActivity.getClass().getSimpleName(),
+                                mActivity.getString(R.string.log_error_the_read_failed) +
+                                        databaseError.getMessage());
+                    }
+                };
 
+        sharedWithFriend.addValueEventListener(sharedWithValueEventListener);
 
-
+        mLocationListenerMap.put(sharedWithFriend, sharedWithValueEventListener);
     }
+
+
 }
