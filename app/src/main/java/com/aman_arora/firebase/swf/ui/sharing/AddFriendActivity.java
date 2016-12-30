@@ -3,6 +3,8 @@ package com.aman_arora.firebase.swf.ui.sharing;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -21,7 +23,6 @@ public class AddFriendActivity extends BaseActivity {
     private AutocompleteFriendAdapter adapter;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,36 +32,44 @@ public class AddFriendActivity extends BaseActivity {
         allUsersRef = FirebaseDatabase.getInstance()
                 .getReferenceFromUrl(Constants.FIREBASE_USERS_URL);
 
-        adapter = new AutocompleteFriendAdapter(this, User.class, R.layout.single_autocomplete_item,
-                allUsersRef, mEncodedEmail);
-
-        mListViewAutocomplete.setAdapter(adapter);
-
 
         /**
          * Set interactive bits, such as click events/adapters
          */
-        /**mEditTextAddFriendEmail.addTextChangedListener(new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
+        mEditTextAddFriendEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
-        @Override
-        public void afterTextChanged(Editable s) {
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (adapter != null)
+                    adapter.cleanup();
+                String wrapperText = s.toString().toLowerCase();
+                if (wrapperText.length() > 1) {
 
-        }
-        });**/
+                    adapter = new AutocompleteFriendAdapter(AddFriendActivity.this, User.class, R.layout.single_autocomplete_item,
+                            allUsersRef.orderByChild("email").startAt(s.toString())
+                                    .endAt(s.toString() + '~').limitToFirst(5),
+                            mEncodedEmail);
+                    mListViewAutocomplete.setAdapter(adapter);
+                } else mListViewAutocomplete.setAdapter(null);
+
+
+            }
+        });
     }
 
     @Override
     public void onDestroy() {
 
         super.onDestroy();
-        adapter.cleanup();
+        if (adapter != null)
+            adapter.cleanup();
     }
 
     /**

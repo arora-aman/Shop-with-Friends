@@ -167,7 +167,7 @@ public class CreateAccountActivity extends BaseActivity {
     }
 
     private void onRegistration() {
-        String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString());
+        String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString().toLowerCase());
         HashMap<String, Object> timeStamp = new HashMap<String, Object>();
         timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         User user = new User(mEditTextUsernameCreate.getText().toString(),
