@@ -112,7 +112,19 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void onSignInPressed(View view) {
-        signInPassword();
+        if(validateDetails())signInPassword();
+    }
+
+    public boolean validateDetails(){
+        boolean validEmail = false, validPassword = false;
+        if(mEditTextEmailInput.getText().toString().length() <= 0)
+            mEditTextEmailInput.setError(getString(R.string.error_cannot_be_empty));
+        else validEmail = true;
+        if(mEditTextPasswordInput.getText().length() <= 0)
+            mEditTextPasswordInput.setError(getString(R.string.error_cannot_be_empty));
+        else validPassword = true;
+
+        return  validEmail && validPassword;
     }
 
     public void onSignUpPressed(View view) {
@@ -171,9 +183,6 @@ public class LoginActivity extends BaseActivity {
                     }
                 });
     }
-
-
-
 
     @Override
     protected void onStop() {

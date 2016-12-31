@@ -49,7 +49,6 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-
                 if (user != null) setTitle(user.getName() + "'s Lists");
             }
 
