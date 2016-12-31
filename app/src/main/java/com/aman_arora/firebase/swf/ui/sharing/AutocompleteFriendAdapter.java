@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class AutocompleteFriendAdapter extends FirebaseListAdapter<User> {
 
+    private static final String TAG = AutocompleteFriendAdapter.class.getSimpleName();
     private String mEncodedEmail;
     private DatabaseReference friendListRef;
 
@@ -53,8 +54,11 @@ public class AutocompleteFriendAdapter extends FirebaseListAdapter<User> {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        if(isNotAlreadyAdded(dataSnapshot, model))
+                        if(isNotAlreadyAdded(dataSnapshot, model)){
+                            Log.d(TAG, "onDataChange: " +  model.toString());
                             friendRef.setValue(model);
+                        }
+
                             mActivity.finish();
                     }
 

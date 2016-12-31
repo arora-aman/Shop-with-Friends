@@ -42,9 +42,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
         SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.PREFERENCE_LOGIN_FILE, MODE_PRIVATE);
         mEncodedEmail = sharedPreferences.getString(Constants.PREFERENCE_ENCODED_EMAIL, null);
-
-
-
     }
 
     @Override

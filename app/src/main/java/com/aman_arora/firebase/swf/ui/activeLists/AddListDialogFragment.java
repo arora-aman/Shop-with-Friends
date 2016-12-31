@@ -88,14 +88,14 @@ public class AddListDialogFragment extends DialogFragment {
         if(inputListName.equals(""))return;
         DatabaseReference newListReference = FirebaseDatabase.getInstance()
                 .getReferenceFromUrl(Constants.FIREBASE_USER_LISTS_URL).child(encodedEmail).push();
-//        DatabaseReference newList = databaseReference.push();
+        String listPushId = newListReference.getKey();
         HashMap<String, Object> dateCreated = new HashMap<>();
         dateCreated.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         ShoppingList shoppingList = new ShoppingList(encodedEmail, inputListName, dateCreated);
-//        newList.setValue(shoppingList);
 
         HashMap<String, Object> newList = new HashMap<>();
-        newList = Utils.createUpdatePackage(newList, encodedEmail, newListReference.getKey(), "", shoppingList, null);
+        newList = Utils.createUpdatePackage(newList, encodedEmail, listPushId , "", shoppingList, null);
+        newList.put(Constants.FIREBASE_LIST_OWNERS_LOCATION + '/' + listPushId, shoppingList.getOwner());
         DatabaseReference ref = FirebaseDatabase.getInstance()
                 .getReferenceFromUrl(Constants.FIREBASE_URL);
         ref.updateChildren(newList);

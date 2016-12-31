@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
@@ -123,7 +124,7 @@ public class CreateAccountActivity extends BaseActivity {
                                 showErrorToast(task.getException().getLocalizedMessage());
                                 Log.d(TAG, "onComplete: Error:" + task.getException().getMessage());
                             } else {
-                                onRegistration();
+                                onRegistration(task.getResult());
                             }
                             mAuthProgressDialog.dismiss();
                         }
@@ -166,14 +167,26 @@ public class CreateAccountActivity extends BaseActivity {
         return false;
     }
 
-    private void onRegistration() {
+    private void onRegistration(AuthResult authResult) {
+        Log.d(TAG, "onRegistration: Registering");
         String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString().toLowerCase());
         HashMap<String, Object> timeStamp = new HashMap<String, Object>();
         timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         User user = new User(mEditTextUsernameCreate.getText().toString(),
                 encodedEmail, timeStamp);
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USERS_URL);
-        ref.child(encodedEmail).setValue(user);
+        String uid = authResult.getUser().getUid();
+        Log.d(TAG, "onRegistration: "  + uid);
+
+        HashMap<String, Object> registeredUser = new HashMap<>();
+        registeredUser.put(Constants.USER_LOCATION + '/' + encodedEmail, user);
+        registeredUser.put(Constants.FIREBASE_UID_MAPPINGS_LOCATION + '/' + uid, encodedEmail);
+        FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_URL)
+                .updateChildren(registeredUser, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if(databaseError != null) Log.d(TAG, "onComplete: "  + databaseError.getMessage());
+                    }
+                });
         writeEmailToSharedPreferences(encodedEmail, Constants.PROVIDER_EMAIL_PASSWORD);
         startActivity(new Intent(this, MainActivity.class));
     }

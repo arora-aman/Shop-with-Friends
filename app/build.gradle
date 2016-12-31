@@ -36,6 +36,8 @@ android {
             it.buildConfigField 'String', 'PROPERY_LIST_SHOPPING_USERS', list_property_shopping_users
             it.buildConfigField 'String', 'USER_FRIENDS_LOCATION', usersFriends
             it.buildConfigField 'String', 'SHARED_WITH_LOCATION', sharedWith
+            it.buildConfigField 'String', 'FIREBASE_UID_MAPPINGS', uidMappings
+            it.buildConfigField 'String', 'FIREBASE_LIST_OWNER_LOCATION', listOwnerlocation
     }
     packagingOptions {
         exclude 'META-INF/LICENSE'

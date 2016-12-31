@@ -170,7 +170,6 @@ public class LoginActivity extends BaseActivity {
                         mAuthProgressDialog.dismiss();
                     }
                 });
-
     }
 
 

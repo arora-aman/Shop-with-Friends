@@ -26,8 +26,6 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
     private static final String LOG_TAG = FriendAdapter.class.getSimpleName();
     private String mListPushID;
     private HashMap<DatabaseReference, ValueEventListener> mLocationListenerMap;
-    private ImageButton toggleShare;
-    private boolean isShared;
     private HashMap<String, User> mSharedUsersList;
     private ShoppingList mShoppingList;
     private DatabaseReference firebaseRef;
@@ -98,33 +96,37 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
     protected void populateView(View v, final User user, int position) {
         TextView userName = (TextView) v.findViewById(R.id.user_name);
         userName.setText(user.getName());
-        toggleShare = (ImageButton) v.findViewById(R.id.button_toggle_share);
+        final ImageButton toggleShare= (ImageButton) v.findViewById(R.id.button_toggle_share);
 
         DatabaseReference sharedWithFriend = FirebaseDatabase.getInstance().getReferenceFromUrl(
                 Constants.FIREBASE_SHARED_WITH_URL).child(mListPushID).child(user.getEmail());
+        Log.d(LOG_TAG, "populateView: " + user.getEmail());
 
         ValueEventListener sharedWithValueEventListener =
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getValue(User.class) == null) {
+                            Log.d(LOG_TAG, "onDataChange:3111" + user.getEmail());
                             toggleShare.setImageDrawable(
                                     mActivity.getResources().getDrawable(R.drawable.icon_add_friend));
                             toggleShare.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
+                                    Log.d(LOG_TAG, "onClick: false");
                                     HashMap<String, Object> updatedUserData =
                                             updateFriendInSharedWith(true, user);
-
                                     firebaseRef.updateChildren(updatedUserData);
                                 }
                             });
                         } else {
+                            Log.d(LOG_TAG, "onDataChange: 2131" + user.getEmail());
                             toggleShare.setImageDrawable(
                                     mActivity.getResources().getDrawable(R.drawable.ic_shared_check));
                             toggleShare.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
+                                    Log.d(LOG_TAG, "onClick: true");
                                     HashMap<String, Object> updatedUserData =
                                             updateFriendInSharedWith(false, user);
                                     firebaseRef.updateChildren(updatedUserData);

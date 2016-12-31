@@ -42,7 +42,6 @@ public class Utils {
 
         if (sharedUsers != null) {
             for (User user : sharedUsers.values()) {
-                if (user == null) break;
                 update.put(Constants.FIREBASE_USER_LISTS_LOCATION + "/" + user.getEmail() +
                         "/" + listID + "/" + key, value);
             }

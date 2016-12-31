@@ -1,0 +1,165 @@
+type User {
+	name : String,
+	email : EncodedEmail,
+	timeStampJoined : Timestamp
+	// hasLoggedInWithPassword : Boolean
+}
+
+type ShoppingList {
+	listName: String,
+	owner: EncodedEmail,
+	timeStamp: Timestamp,
+	timeStampLastUpdated: Timestamp,
+	shoppingUsers: Object | Null
+}
+
+type ListItem{
+	itemName: String;
+	owner: EncodedEmail;
+	bought: Boolean,
+	boughtBy: EncodedEmail | Null
+}
+
+type Timestamp {
+	date : Number,
+}
+
+
+type EncodedEmail extends String {
+	validate() { this.test(/^[A-Z0-9,_%+-]+@[A-Z0-9,-]+,[A-Z]{2,4}$/i) }
+}
+
+/** Functions **/
+
+function getEncodedEmail(){
+	return prior(root).uidMappings[auth.uid];
+}
+
+function isLoggedIn(){
+	return auth != null;
+}
+
+function isOwner(ownerEmail){
+	return isLoggedIn() && (getEncodedEmail() == ownerEmail);
+}
+
+function getOwnerEmail(listId) {
+	return prior(root).listOwner[listId];
+}
+
+function isSharedUser(listId){
+	return prior(root).sharedWith[listId][getEncodedEmail()] != null;
+}
+
+function isOwnerOrShared(ownerEmail, listId){
+	return (isOwner(ownerEmail) || isSharedUser(listId));
+}
+
+function isShopping(listId){
+	return (isLoggedIn() && prior(root).userLists[getOwnerEmail(listId)][listId].shoppingUsers[getEncodedEmail()] != null);
+}
+
+
+
+/** Shared with **/
+path /sharedWith {
+}
+
+path /sharedWith/{listId} {
+	read()  {isOwnerOrShared(getOwnerEmail(listId), listId)}
+	write() {isOwner(getOwnerEmail(listId))}
+}
+
+path /sharedWith/{listId}/{userEncodedEmail} is User {
+
+}
+
+/** ShoppingList Items **/
+path /shoppingListItems {
+
+}
+path /shoppingListItems/{listId} {
+	read()  {isOwnerOrShared(getOwnerEmail(listId), listId)}
+	write() {isOwner(getOwnerEmail(listId)) && this == null }
+}
+path /shoppingListItems/{listId}/{itemId} is ListItem {
+	write() { (isOwnerOrShared(getOwnerEmail(listId), listId) && prior(this) == null)
+				    || ((isOwner(prior(this.owner)) || isOwner(getOwnerEmail(listId))) && !prior(this.bought)) }
+}
+
+path /shoppingListItems/{listId}/{itemId}/bought {
+	write() {isOwnerOrShared(getOwnerEmail(listId), listId) && isShopping(listId)}
+	validate() {this == (this.parent().boughtBy.val() != null)}
+}
+
+path /shoppingListItems/{listId}/{itemId}/boughtBy {
+	write() {isOwnerOrShared(getOwnerEmail(listId), listId) && isShopping(listId)}
+	validate()  {this == getEncodedEmail()}
+}
+
+path /shoppingListItems/{listId}/{itemId}/owner {
+	validate() {prior(this) == null}
+}
+
+/** UserFriends **/
+path /usersFriends/{userEncodedEmail} {
+	read()  {isOwner(userEncodedEmail)}
+	write() {isOwner(userEncodedEmail)}
+}
+
+path /usersFriends/{userEncodedEmail}/{friendEncodedEmail} is User {
+}
+
+/** Shopping Lists **/
+path /userLists {
+}
+
+path /userLists/{userEncodedEmail} {
+	read() { isOwner(userEncodedEmail) }
+}
+
+path /userLists/{userEncodedEmail}/{listId} is ShoppingList {
+	write() {(isOwner(this.owner) && prior(this) == null) || (isOwner(prior(this.owner)) && this == null) }
+	validate() {isOwnerOrShared(this.owner, listId)}
+}
+
+path /userLists/{userEncodedEmail}/{listId}/listName {
+  write() {isOwner(userEncodedEmail)}
+	validate() {this.length > 0}
+}
+
+path /userLists/{userEncodedEmail}/{listId}/timeStampLastUpdated {
+	write() { isOwnerOrShared(getOwnerEmail(listId), listId) }
+	validate() {this.date == now}
+}
+
+path /userLists/{userEncodedEmail}/{listId}/shoppingUsers {
+	write() {isOwnerOrShared(prior(this.parent().owner), listId)}
+}
+
+path /userLists/{userEncodedEmail}/{listId}/shoppingUsers/{shoppingUser} is User {
+	validate() {key() == getEncodedEmail()}
+}
+
+/** Users **/
+
+path /users {
+	read() {isLoggedIn()}
+}
+path /users/{userEncodedEmail} is User {
+	write() {isOwner(userEncodedEmail) && prior(this) == null}
+}
+
+
+path /uidMappings/{uid} is EncodedEmail {
+	write() {prior(this) == null && auth.uid == $uid}
+	read()  {isLoggedIn()}
+}
+
+path /listOwner {
+}
+
+path /listOwner/{listPushId} is EncodedEmail {
+	read() {isLoggedIn()}
+	write() {isOwner(this) || isOwner(prior(this))}
+}

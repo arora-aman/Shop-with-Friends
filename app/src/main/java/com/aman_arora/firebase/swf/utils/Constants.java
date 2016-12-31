@@ -15,8 +15,8 @@ public final class Constants {
     public static final String FIREBASE_ITEM_URL = FIREBASE_URL + '/' + LIST_ITEMS_LOCATION;
     public static final String FIREBASE_ITEM_NAME = BuildConfig.FIREBASE_LIST_ITEM_NAME;
     public static final String GOOGLE_OAUTH_CLIENT_ID = BuildConfig.GOOGLE_OAUTH_REQUEST_TOKEN;
-    private static final String USER_LIST_LOCATION = BuildConfig.FIREBASE_USER_LIST;
-    public static final String FIREBASE_USERS_URL = FIREBASE_URL + '/' + USER_LIST_LOCATION;
+    public static final String USER_LOCATION = BuildConfig.FIREBASE_USER_LIST;
+    public static final String FIREBASE_USERS_URL = FIREBASE_URL + '/' + USER_LOCATION;
     public static final String PROPERTY_ITEM_BOUGHT = BuildConfig.PROPERTY_ITEM_BOUGHT;
     public static final String PROPERTY_ITEM_BOUGHT_BY = BuildConfig.PROPERTY_ITEM_BOUGHT_BY;
     public static final String PROPERTY_LIST_SHOPPING_USERS = BuildConfig.PROPERY_LIST_SHOPPING_USERS;
@@ -24,7 +24,8 @@ public final class Constants {
     public static final String FIREBASE_USER_FRIENDS_URL = FIREBASE_URL + '/' + FIREBASE_USER_FRIENDS_LOCATION;
     public static final String FIREBASE_SHARED_WITH_LOCATION = BuildConfig.SHARED_WITH_LOCATION;
     public static final String FIREBASE_SHARED_WITH_URL = FIREBASE_URL + '/' + FIREBASE_SHARED_WITH_LOCATION;
-
+    public static final String FIREBASE_UID_MAPPINGS_LOCATION = BuildConfig.FIREBASE_UID_MAPPINGS;
+    public static final String FIREBASE_LIST_OWNERS_LOCATION = BuildConfig.FIREBASE_LIST_OWNER_LOCATION;
 
     //EditListDialogFragment Key values for bundle
     public static final String KEY_LAYOUT_RESOURCE = "LAYOUT_RESOURCE";

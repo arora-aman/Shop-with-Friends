@@ -35,10 +35,7 @@ public class ShoppingList {
     }
 
     public HashMap<String, Object> getTimeStamp() {
-        if(timeStamp != null)return timeStamp;
-        HashMap<String, Object> dateCreatedObj = new HashMap<>();
-        dateCreatedObj.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
-        return timeStamp;
+       return timeStamp;
     }
 
     public HashMap<String, Object> getTimeStampLastUpdated() {
@@ -57,7 +54,7 @@ public class ShoppingList {
 
     public void setTimestampLastChangedToNow() {
         HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
-        timestampNowObject.put(Constants.FIREBASE_PROPERTY_TIMESTAMP_UPDATED, ServerValue.TIMESTAMP);
+        timestampNowObject.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         this.timeStampLastUpdated = timestampNowObject;
     }
 

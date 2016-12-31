@@ -87,13 +87,12 @@ public class MainActivity extends BaseActivity {
         if(id == R.id.action_logout){
             if(FirebaseAuth.getInstance().getCurrentUser() != null) {
                 FirebaseAuth.getInstance().signOut();
-
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString(Constants.PREFERENCE_ENCODED_EMAIL, null);
                 editor.putString(Constants.PREFERENCE_PROVIDER, null);
+                editor.apply();
                 editor.commit();
-
                 Intent intent = new Intent(this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
