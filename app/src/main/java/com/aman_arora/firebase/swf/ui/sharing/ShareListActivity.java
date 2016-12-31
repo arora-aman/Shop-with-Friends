@@ -32,6 +32,7 @@ public class ShareListActivity extends BaseActivity {
     private ValueEventListener sharedFriendsValueEventListener;
     private ValueEventListener listValueEventListener;
     private ShoppingList mShoppingList;
+    private  HashMap<String, User> sharedUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,15 +76,12 @@ public class ShareListActivity extends BaseActivity {
 
         listRef.addValueEventListener(listValueEventListener);
 
-
-        final HashMap<String, User> sharedUsers = new HashMap<>();
-
         sharedFriendsValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                sharedUsers = new HashMap<>();
                 for (DataSnapshot currentUser : dataSnapshot.getChildren()) {
                     sharedUsers.put(currentUser.getKey(), currentUser.getValue(User.class));
-
                 }
                 adapter.setSharedWithUsers(sharedUsers);
             }

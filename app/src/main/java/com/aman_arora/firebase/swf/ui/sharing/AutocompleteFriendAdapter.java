@@ -56,7 +56,6 @@ public class AutocompleteFriendAdapter extends FirebaseListAdapter<User> {
                         if(isNotAlreadyAdded(dataSnapshot, model))
                             friendRef.setValue(model);
                             mActivity.finish();
-
                     }
 
                     @Override

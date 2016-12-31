@@ -50,18 +50,11 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
 
     public void setSharedWithUsers(HashMap<String, User> sharedUsersList) {
         mSharedUsersList = sharedUsersList;
-        Log.d("TAG", "setSharedWithUsers: " + mSharedUsersList.toString());
+        Log.d("TAG", "updateFriendInSharedWith2: " + mSharedUsersList.toString());
         this.notifyDataSetChanged();
     }
 
 
-    /**
-     * This method does the tricky job of adding or removing a friend from the sharedWith list.
-     *
-     * @param addFriend           This is true if the friend is being added, false is the friend is being removed.
-     * @param friendToAddOrRemove This is the friend to either add or remove
-     * @return
-     */
     private HashMap<String, Object> updateFriendInSharedWith(Boolean addFriend, User friendToAddOrRemove) {
 
         HashMap<String, User> newSharedWith = new HashMap<String, User>(mSharedUsersList);
@@ -85,8 +78,8 @@ public class FriendAdapter extends FirebaseListAdapter<User> {
 
         update.put(updateLocation, updateValue);
         update.put(updateListLocation, updateList);
+        Log.d("TAG", "updateFriendInSharedWith: " + newSharedWith.toString());
         Utils.createTimeStampUpdatePackage(update, mShoppingList.getOwner(), mListPushID, newSharedWith);
-        Log.d("TAG", "updateFriendInSharedWith: " + update.toString());
         return update;
     }
 
