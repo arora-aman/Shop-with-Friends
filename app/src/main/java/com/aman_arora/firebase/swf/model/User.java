@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class User {
     String name, email;
     HashMap<String, Object> timeStampJoined;
+    Boolean userVerified;
 
     public User() {
     }
@@ -16,6 +17,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.timeStampJoined = timeStampJoined;
+        this.userVerified = false;
     }
 
     public String getName() {
@@ -33,5 +35,9 @@ public class User {
     @Exclude
     public long getTimeStampLong(){
         return (long) timeStampJoined.get(Constants.TIMESTAMP_OBJECT_KEY);
+    }
+
+    public Boolean getUserVerified() {
+        return userVerified;
     }
 }

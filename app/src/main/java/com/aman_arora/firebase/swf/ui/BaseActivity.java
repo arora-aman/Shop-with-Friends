@@ -1,21 +1,33 @@
 package com.aman_arora.firebase.swf.ui;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.utils.Constants;
+import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.aman_arora.firebase.swf.R;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
 
 
 public abstract class BaseActivity extends AppCompatActivity implements
@@ -23,7 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
     protected String mEncodedEmail;
     protected DatabaseReference firebaseRef;
-
+    private final String TAG = BaseActivity.class.getSimpleName();
     protected GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -86,12 +98,65 @@ public abstract class BaseActivity extends AppCompatActivity implements
     }
 
     protected void writeEmailToSharedPreferences(String encodedEmail, String provider){
+        Log.d(this.getLocalClassName(), "writeEmailToSharedPreferences:" + encodedEmail);
         SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.PREFERENCE_LOGIN_FILE, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
         editor.putString(Constants.PREFERENCE_PROVIDER, provider);
         editor.apply();
         editor.commit();
+    }
+
+    protected Dialog verifyEmail(final FirebaseUser user, final Context context){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.CustomTheme_Dialog);
+        builder.setTitle(getString(R.string.user_email_not_verified));
+        builder.setMessage(getString(R.string.resend_verification_email));
+        builder.setNegativeButton(getString(R.string.negative_button_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                onDialogResult(context);
+            }
+        });
+        builder.setPositiveButton(getString(R.string.positive_button_yes), new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                user.sendEmailVerification();
+                dialog.dismiss();
+                onDialogResult(context);
+            }
+        });
+        builder.setCancelable(false);
+        return  builder.create();
+    }
+
+    private void onDialogResult(Context context) {
+        startActivity(new Intent(context, MainActivity.class));
+        finish();
+    }
+
+    protected void onAuthChanged(FirebaseUser user, final Context context){
+        Dialog verificationDialog = verifyEmail(user, context);
+        if(!user.isEmailVerified())verificationDialog.show();
+        else{
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance()
+                    .getReferenceFromUrl(Constants.FIREBASE_USERS_URL)
+                    .child(Utils.encodeEmail(user.getEmail()));
+            HashMap<String, Object> verified = new HashMap<>();
+            verified.put(Constants.FIREBASE_USER_VERIFIED_LOCATION, Boolean.TRUE);
+            databaseReference.updateChildren(verified, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    Log.d(TAG, "onComplete: " + (databaseError == null));
+                    onDialogResult(context);
+                }
+            });
+        }
+
+    }
+
+    protected void showErrorToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
 }

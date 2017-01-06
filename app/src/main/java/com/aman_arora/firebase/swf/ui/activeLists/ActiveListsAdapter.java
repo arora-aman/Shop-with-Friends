@@ -54,7 +54,6 @@ public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
                                     databaseError.getMessage());
                 }
             });
-
         }
 
         String shoppingUsersText;

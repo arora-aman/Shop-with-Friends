@@ -42,14 +42,18 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initializeScreen();
-
+        Log.d("mainActivity", "onCreate: " +  mEncodedEmail);
         userRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USERS_URL).child(mEncodedEmail);
 
         mEmailValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                if (user != null) setTitle(user.getName() + "'s Lists");
+                if (user != null) {
+                    setTitle(user.getName() + "'s Lists");
+                    Log.d("MainACTIVITY", "onDataChange: " + user.getName());
+                }
+
             }
 
             @Override

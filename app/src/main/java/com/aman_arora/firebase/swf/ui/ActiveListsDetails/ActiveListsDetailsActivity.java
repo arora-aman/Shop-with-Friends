@@ -233,9 +233,11 @@ public class ActiveListsDetailsActivity extends BaseActivity {
                 deleteListDialogs();
                 return true;
             case R.id.action_share_list:
-                Intent intent =  new Intent(this,ShareListActivity.class);
-                intent.putExtra(Constants.KEY_PUSH_ID_USER_LIST, mPushId);
-                startActivity(intent);
+                if(currentUser.getUserVerified()){
+                    Intent intent =  new Intent(this,ShareListActivity.class);
+                    intent.putExtra(Constants.KEY_PUSH_ID_USER_LIST, mPushId);
+                    startActivity(intent);
+                }else showErrorToast(getString(R.string.user_email_not_verified));
                 return true;
         }
 

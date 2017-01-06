@@ -14,12 +14,10 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.ui.BaseActivity;
-import com.aman_arora.firebase.swf.ui.MainActivity;
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,10 +52,8 @@ public class CreateAccountActivity extends BaseActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    showErrorToast("User signed in" + user.getUid());
-                    startActivity(new Intent(CreateAccountActivity.this, MainActivity.class));
-                    finish();
-                } else showErrorToast("Nope some bs happened!/ Signed out!");
+                    onAuthChanged(user, CreateAccountActivity.this);
+                } else showErrorToast("Register some bs happened!/ Signed out!");
             }
         };
     }
@@ -157,25 +153,21 @@ public class CreateAccountActivity extends BaseActivity {
         return false;
     }
 
-    private void showErrorToast(String message) {
-        Toast.makeText(CreateAccountActivity.this, message, Toast.LENGTH_LONG).show();
-    }
-
     private boolean isUserNameValid(String userName) {
         if (userName != null && userName.length() > 0) return true;
         mEditTextUsernameCreate.setError(getString(R.string.error_cannot_be_empty));
         return false;
     }
 
-    private void onRegistration(AuthResult authResult) {
+    private void onRegistration(final AuthResult authResult) {
         Log.d(TAG, "onRegistration: Registering");
-        String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString().toLowerCase());
+        final String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString().toLowerCase());
         HashMap<String, Object> timeStamp = new HashMap<String, Object>();
         timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         User user = new User(mEditTextUsernameCreate.getText().toString(),
                 encodedEmail, timeStamp);
         String uid = authResult.getUser().getUid();
-        Log.d(TAG, "onRegistration: "  + uid);
+        Log.d(TAG, "onRegistration: " + uid);
 
         HashMap<String, Object> registeredUser = new HashMap<>();
         registeredUser.put(Constants.USER_LOCATION + '/' + encodedEmail, user);
@@ -184,11 +176,16 @@ public class CreateAccountActivity extends BaseActivity {
                 .updateChildren(registeredUser, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        if(databaseError != null) Log.d(TAG, "onComplete: "  + databaseError.getMessage());
+                        if (databaseError == null){
+                            writeEmailToSharedPreferences(encodedEmail, Constants.PROVIDER_EMAIL_PASSWORD);
+                            FirebaseUser newUser = authResult.getUser();
+                            newUser.sendEmailVerification();
+                            onAuthChanged(newUser, CreateAccountActivity.this);
+                        }
+                        else   Log.d(TAG, "onComplete: " + databaseError.getMessage());
                     }
                 });
-        writeEmailToSharedPreferences(encodedEmail, Constants.PROVIDER_EMAIL_PASSWORD);
-        startActivity(new Intent(this, MainActivity.class));
+
     }
 
 }

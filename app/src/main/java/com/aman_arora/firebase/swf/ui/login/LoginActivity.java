@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.ui.BaseActivity;
-import com.aman_arora.firebase.swf.ui.MainActivity;
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.auth.api.Auth;
@@ -79,11 +78,9 @@ public class LoginActivity extends BaseActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    showErrorToast("User signed in" + user.getUid());
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
+                    onAuthChanged(user, LoginActivity.this);
                 }
-                else showErrorToast("Nope some bs happened!/ Signed out!");
+                else showErrorToast("LoginNope some bs happened!/ Signed out!");
             }
         };
 
@@ -176,7 +173,7 @@ public class LoginActivity extends BaseActivity {
                         if (task.isSuccessful()) {
                             writeEmailToSharedPreferences(Utils.encodeEmail(mEditTextEmailInput.getText().toString()), Constants.PROVIDER_EMAIL_PASSWORD);
                         } else {
-                            showErrorToast(task.getException().getLocalizedMessage());
+                            showErrorToast(getString(R.string.login_error));
                             Log.d(TAG, "onComplete: Error:" + task.getException().getMessage());
                         }
                         mAuthProgressDialog.dismiss();
@@ -242,8 +239,8 @@ public class LoginActivity extends BaseActivity {
 
     }
 
-    private void showErrorToast(String message) {
-        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
-    }
+
+
+
 
 }
