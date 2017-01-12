@@ -233,7 +233,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
                 deleteListDialogs();
                 return true;
             case R.id.action_share_list:
-                if(currentUser.getUserVerified()){
+                if(currentUser.getUserVerified() != null && currentUser.getUserVerified()){
                     Intent intent =  new Intent(this,ShareListActivity.class);
                     intent.putExtra(Constants.KEY_PUSH_ID_USER_LIST, mPushId);
                     startActivity(intent);

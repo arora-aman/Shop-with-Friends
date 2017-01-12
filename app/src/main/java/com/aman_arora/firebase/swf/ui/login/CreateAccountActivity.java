@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.ui.BaseActivity;
+import com.aman_arora.firebase.swf.ui.MainActivity;
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -111,7 +112,7 @@ public class CreateAccountActivity extends BaseActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         if (createUserHelper()) {
             mAuthProgressDialog.show();
-            mAuth.createUserWithEmailAndPassword(mEditTextEmailCreate.getText().toString(), mEditTextPasswordCreate.getText().toString())
+            mAuth.createUserWithEmailAndPassword(mEditTextEmailCreate.getText().toString().toLowerCase(), mEditTextPasswordCreate.getText().toString())
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -161,7 +162,7 @@ public class CreateAccountActivity extends BaseActivity {
 
     private void onRegistration(final AuthResult authResult) {
         Log.d(TAG, "onRegistration: Registering");
-        final String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString().toLowerCase());
+        final String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString().toLowerCase().toLowerCase());
         HashMap<String, Object> timeStamp = new HashMap<String, Object>();
         timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         User user = new User(mEditTextUsernameCreate.getText().toString(),
@@ -180,7 +181,8 @@ public class CreateAccountActivity extends BaseActivity {
                             writeEmailToSharedPreferences(encodedEmail, Constants.PROVIDER_EMAIL_PASSWORD);
                             FirebaseUser newUser = authResult.getUser();
                             newUser.sendEmailVerification();
-                            onAuthChanged(newUser, CreateAccountActivity.this);
+                            startActivity(new Intent(CreateAccountActivity.this, MainActivity.class));
+                            finish();
                         }
                         else   Log.d(TAG, "onComplete: " + databaseError.getMessage());
                     }

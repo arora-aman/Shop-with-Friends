@@ -19,14 +19,12 @@ import com.aman_arora.firebase.swf.utils.Constants;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 
 public class ShoppingListsFragment extends Fragment {
     private ListView mListView;
     private ActiveListsAdapter activeListsAdapter;
-    private ValueEventListener eventListener;
-    private DatabaseReference shoppingListDatabse;
+    private DatabaseReference shoppingListDatabase;
     private String mEncodedEmail;
     public String[] sortPreference;
     public ShoppingListsFragment() {
@@ -71,16 +69,16 @@ public class ShoppingListsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        shoppingListDatabse = FirebaseDatabase.getInstance()
+        shoppingListDatabase = FirebaseDatabase.getInstance()
                 .getReferenceFromUrl(Constants.FIREBASE_USER_LISTS_URL).child(mEncodedEmail);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortOrder = sharedPreferences.getString(Constants.KEY_PREF_SORT_ORDER_LISTS, Constants.ORDER_BY_KEY);
         Query sortQuery;
 
         if(sortOrder.equals(Constants.ORDER_BY_KEY)){
-            sortQuery = shoppingListDatabse.orderByKey();
+            sortQuery = shoppingListDatabase.orderByKey();
         }else{
-            sortQuery = shoppingListDatabse.orderByChild(sortOrder);
+            sortQuery = shoppingListDatabase.orderByChild(sortOrder);
         }
 
         activeListsAdapter = new ActiveListsAdapter(getActivity(), ShoppingList.class,

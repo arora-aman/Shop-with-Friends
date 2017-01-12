@@ -165,13 +165,13 @@ public class LoginActivity extends BaseActivity {
     public void signInPassword() {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         mAuthProgressDialog.show();
-        mAuth.signInWithEmailAndPassword(mEditTextEmailInput.getText().toString(), mEditTextPasswordInput.getText().toString())
+        mAuth.signInWithEmailAndPassword(mEditTextEmailInput.getText().toString().toLowerCase(), mEditTextPasswordInput.getText().toString())
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "onComplete: " + task.isSuccessful());
                         if (task.isSuccessful()) {
-                            writeEmailToSharedPreferences(Utils.encodeEmail(mEditTextEmailInput.getText().toString()), Constants.PROVIDER_EMAIL_PASSWORD);
+                            writeEmailToSharedPreferences(Utils.encodeEmail(mEditTextEmailInput.getText().toString().toLowerCase()), Constants.PROVIDER_EMAIL_PASSWORD);
                         } else {
                             showErrorToast(getString(R.string.login_error));
                             Log.d(TAG, "onComplete: Error:" + task.getException().getMessage());
