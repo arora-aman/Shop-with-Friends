@@ -105,4 +105,5 @@ public class ShoppingListsFragment extends Fragment {
         mListView = (ListView) rootView.findViewById(R.id.list_view_active_lists);
     }
 
+
 }

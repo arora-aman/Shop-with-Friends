@@ -4,6 +4,7 @@
     <dimen name="lv_header_text_size">20sp</dimen>
     <dimen name="list_item_text_size">33sp</dimen>
     <dimen name="login_buttons_text_size">30sp</dimen>
+    <dimen name="user_profile_heading_text_size">58.8sp</dimen>
 
     <dimen name="edit_text_padding_land">12dp</dimen>
     <dimen name="lists_title_bottom_margin">26dp</dimen>
@@ -17,4 +18,6 @@
     <dimen name="activity_horizontal_margin_land">128dp</dimen>
     <dimen name="empty_footer_height">130dp</dimen>
     <dimen name="logo_image_size">200dp</dimen>
+    <dimen name="height_send_verification_email" >72dp</dimen>
+    <!--<dimen name="padding_send_verification_email">7.5dp</dimen>-->
 </resources>

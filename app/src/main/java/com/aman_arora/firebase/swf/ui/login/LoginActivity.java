@@ -44,6 +44,7 @@ public class LoginActivity extends BaseActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private final String TAG = LoginActivity.class.getSimpleName();
 
+    //TODO: implement forget password
     private boolean mGoogleIntentInProgress;
     /* Request code used to invoke sign in user interactions for Google+ */
     public static final int RC_GOOGLE_LOGIN = 1;

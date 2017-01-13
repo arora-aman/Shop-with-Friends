@@ -40,7 +40,9 @@ public final class Constants {
     public static final String PREFERENCE_ENCODED_EMAIL = "enCOdedEmAilUsEr";
     public static final String KEY_SHOPPING_LIST_OWNER = "shoppingListOWNERArgumentForDialog";
     public static final String KEY_SHARED_WITH_USERS = "sharedUsersKeyArgs";
-
+    public static final String KEY_CURRENT_USER = "currentUser";
+    public static final String KEY_EMAIL = "email";
+    public static final String KEY_PASSWORD = "passwordKey";
     public static final String PREFERENCE_PROVIDER = "ProviderFortHelUsErEmail";
     public static final String PROVIDER_EMAIL_PASSWORD = "EmaiLnPassWord";
 

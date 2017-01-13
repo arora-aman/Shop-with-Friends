@@ -20,7 +20,7 @@ import com.aman_arora.firebase.swf.ui.activeLists.AddListDialogFragment;
 import com.aman_arora.firebase.swf.ui.activeLists.ShoppingListsFragment;
 import com.aman_arora.firebase.swf.ui.login.LoginActivity;
 import com.aman_arora.firebase.swf.ui.meals.AddMealDialogFragment;
-import com.aman_arora.firebase.swf.ui.meals.MealsFragment;
+import com.aman_arora.firebase.swf.ui.user_profile.ProfileFragment;
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -34,6 +34,8 @@ public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private ValueEventListener mEmailValueEventListener;
     private DatabaseReference userRef;
+//    private FirebaseAuth mAuth;
+//    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,10 @@ public class MainActivity extends BaseActivity {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
                     setTitle(user.getName() + "'s Lists");
-                    Log.d("MainACTIVITY", "onDataChange: " + user.getName());
+                    Log.d(LOG_TAG, "onDataChange: " + user.getName());
+                }else{
+                    showErrorToast(getString(R.string.user_not_found));
+                    finish();
                 }
 
             }
@@ -61,6 +66,20 @@ public class MainActivity extends BaseActivity {
                                 databaseError.getMessage());
             }
         };
+
+//        mAuth = FirebaseAuth.getInstance();
+//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser user = firebaseAuth.getCurrentUser();
+//                if(user == null) finish();
+//                else {
+//                    Log.d(LOG_TAG, "onAuthStateChanged: "+ user.isEmailVerified());
+//                }
+//            }
+//        };
+//
+//        mAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
@@ -73,6 +92,7 @@ public class MainActivity extends BaseActivity {
     protected void onStop() {
         super.onStop();
         if (mEmailValueEventListener != null) userRef.removeEventListener(mEmailValueEventListener);
+//        if (mAuthStateListener != null) mAuth.removeAuthStateListener(mAuthStateListener);
     }
 
     @Override
@@ -146,7 +166,7 @@ public class MainActivity extends BaseActivity {
                     fragment = ShoppingListsFragment.newInstance(mEncodedEmail);
                     break;
                 case 1:
-                    fragment = MealsFragment.newInstance();
+                    fragment = ProfileFragment.newInstance();
                     break;
                 default:
                     fragment = ShoppingListsFragment.newInstance(mEncodedEmail);
@@ -169,7 +189,7 @@ public class MainActivity extends BaseActivity {
                     return getString(R.string.pager_title_shopping_lists);
                 case 1:
                 default:
-                    return getString(R.string.pager_title_meals);
+                    return getString(R.string.pager_title_profile);
             }
         }
     }

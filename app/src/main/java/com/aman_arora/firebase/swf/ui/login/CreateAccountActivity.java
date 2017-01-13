@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -167,8 +168,22 @@ public class CreateAccountActivity extends BaseActivity {
         timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         User user = new User(mEditTextUsernameCreate.getText().toString(),
                 encodedEmail, timeStamp);
-        String uid = authResult.getUser().getUid();
+
+        FirebaseUser currentUser = authResult.getUser();
+        String uid = currentUser.getUid();
         Log.d(TAG, "onRegistration: " + uid);
+        UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder()
+                .setDisplayName(mEditTextUsernameCreate.getText().toString())
+                .build();
+
+        currentUser.updateProfile(userProfileChangeRequest)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "update_user_setName: " + task.isSuccessful());
+                    }
+                });
+
 
         HashMap<String, Object> registeredUser = new HashMap<>();
         registeredUser.put(Constants.USER_LOCATION + '/' + encodedEmail, user);

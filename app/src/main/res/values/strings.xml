@@ -7,6 +7,7 @@
     <string name="app_name">Shop with Friends</string>
     <string name="pager_title_shopping_lists">Shopping Lists</string>
     <string name="pager_title_meals">Meals</string>
+    <string name="pager_title_profile">Profile</string>
     <string name="remove_item_option">Remove Item</string>
     <string name="positive_button_create">Create</string>
     <string name="text_you">You</string>
@@ -217,9 +218,34 @@
 
 
     <!--User Validation-->
-    <string name="user_email_not_verified">Email Not Verified</string>
+    <string name="user_email_not_verified">User Not Verified</string>
     <string name="resend_verification_email">Do you want us to resend the verification Email?</string>
 
+    <!--User Profile-->
+
+    <string name="user_profile">Profile</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="button_update_profile">UPDATE PROFILE</string>
+    <string name="profile_user_verified">User Verified:&#160;</string>
+    <string name="profile_user_verified_blank" >&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</string>
+    <string name="profile_user_verified_true">Yes&#160;&#160;&#160;</string>
+    <string name="profile_user_verified_false">No&#160;&#160;&#160;&#160;&#160;</string>
+    <string name="profile_send_verification_email">Send Verification Email</string>
+    <string name="profile_verified_your_email">Verified your email?</string>
+    <string name="profile_finish_user_verification">Finish User Verification</string>
+    <string name="user_not_found"> Error: User not available </string>
+    <string name="validate">Validate</string>
+    <string name="user_verified">User Verified!</string>
+    <string name="error_validating_user">Couldn\'t validate user</string>
+    <string name="update_password">Update Password</string>
+    <string name="reauth_confirm_your_authentication_details">Please confirm your authentication details:</string>
+    <string name="change_password">Change Password</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+    <string name="error_update_password_first">Please update password first!</string>
+    <string name="error_no_update">No changes found</string>
+    <string name="profile_updated">Profile updated</string>
+    <string name="password_updated">Password updated</string>
+    <string name="error_profile_update_request_not_completed">Your requested can\'t be completed</string>
 
 
 </resources>

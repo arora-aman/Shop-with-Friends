@@ -46,9 +46,7 @@ public class Utils {
                         "/" + listID + "/" + key, value);
             }
         }
-
         return update;
-
     }
 
     public static HashMap<String, Object> createTimeStampUpdatePackage(HashMap<String, Object> update,
