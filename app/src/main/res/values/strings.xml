@@ -246,6 +246,10 @@
     <string name="profile_updated">Profile updated</string>
     <string name="password_updated">Password updated</string>
     <string name="error_profile_update_request_not_completed">Your requested can\'t be completed</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="you_must_verify_your_email">You must verify your email</string>
+    <string name="email_sent">Email Sent!</string>
+    <string name="reset_password_email_sent">Email sent with information on how to reset password</string>
 
 
 </resources>

@@ -107,6 +107,8 @@
             android:text="@string/change_password"
             android:textColor="@android:color/white"
             android:textSize="@dimen/login_buttons_text_size"
+            android:paddingLeft="@dimen/edit_text_padding"
+            android:paddingRight="@dimen/edit_text_padding"
             android:visibility="gone"/>
 
 

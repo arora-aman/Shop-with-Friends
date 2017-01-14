@@ -97,7 +97,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG,ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
+                Log.e(TAG, ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
                         + databaseError.getMessage());
             }
         };
@@ -112,7 +112,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG,ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
+                Log.e(TAG, ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
                         + databaseError.getMessage());
             }
         };
@@ -124,7 +124,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
         sharedWithValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot sharedUser: dataSnapshot.getChildren()){
+                for (DataSnapshot sharedUser : dataSnapshot.getChildren()) {
                     sharedUsers.put(sharedUser.getKey(), sharedUser.getValue(User.class));
                 }
                 listItemAdapter.setSharedWithUsersList(sharedUsers);
@@ -132,7 +132,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG,ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
+                Log.e(TAG, ActiveListsDetailsActivity.this.getString(R.string.log_error_the_read_failed)
                         + databaseError.getMessage());
             }
         };
@@ -150,7 +150,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 ListItem listItem = listItemAdapter.getItem(i);
 
-                if(mEncodedEmail.equals(listItem.getOwner())) {
+                if (mEncodedEmail.equals(listItem.getOwner())) {
 
                     EditListItemDialog editListItemDialog = (EditListItemDialog) EditListItemDialog
                             .newInstance(listItemAdapter.getItem(i).getItemName(), mPushId,
@@ -233,11 +233,11 @@ public class ActiveListsDetailsActivity extends BaseActivity {
                 deleteListDialogs();
                 return true;
             case R.id.action_share_list:
-                if(currentUser.getUserVerified()){
-                    Intent intent =  new Intent(this,ShareListActivity.class);
+                if (currentUser.getUserVerified()) {
+                    Intent intent = new Intent(this, ShareListActivity.class);
                     intent.putExtra(Constants.KEY_PUSH_ID_USER_LIST, mPushId);
                     startActivity(intent);
-                }else showErrorToast(getString(R.string.user_email_not_verified));
+                } else showErrorToast(getString(R.string.user_email_not_verified));
                 return true;
         }
 
@@ -299,7 +299,7 @@ public class ActiveListsDetailsActivity extends BaseActivity {
             startShopping();
 
         } else {
-            Utils.createUpdatePackage(updatePackage,mEncodedEmail,mPushId,updateKey, null, sharedUsers);
+            Utils.createUpdatePackage(updatePackage, mEncodedEmail, mPushId, updateKey, null, sharedUsers);
             Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId, sharedUsers);
             firebaseRef.updateChildren(updatePackage);
             stopShopping();
@@ -330,37 +330,33 @@ public class ActiveListsDetailsActivity extends BaseActivity {
         for (User users : shoppingUsers.values())
             if (users != null && !users.getEmail().equals(mEncodedEmail))
                 otherUsers.add(users.getName());
-        //TODO: use format of getString(ID, replacements) just like printf(); instead of using replace
         if (isShopping) {
             switch (otherUsers.size()) {
                 case 0:
                     text = getString(R.string.text_you_are_shopping);
                     break;
                 case 1:
-                    text = getString(R.string.text_you_and_other_are_shopping)
-                            .replace("%s", otherUsers.get(0));
+                    text = getString(R.string.text_you_and_other_are_shopping, otherUsers.get(0));
                     break;
                 default:
-                    text = getString(R.string.text_you_and_number_are_shopping)
-                            .replace("%d", String.valueOf(otherUsers.size()));
+                    text = getString(R.string.text_you_and_number_are_shopping, otherUsers.size());
                     break;
 
             }
         } else {
             switch (otherUsers.size()) {
                 case 1:
-                    text = getString(R.string.text_other_is_shopping)
-                            .replace("%s", otherUsers.get(0));
+                    text = getString(R.string.text_other_is_shopping, otherUsers.get(0));
                     break;
                 case 2:
-                    text = getString(R.string.text_other_and_other_are_shopping)
-                            .replace("%1$s", otherUsers.get(0))
-                            .replace("%2$s", otherUsers.get(1));
+                    text = getString(R.string.text_other_and_other_are_shopping
+                            , otherUsers.get(0)
+                            , otherUsers.get(1));
                     break;
                 default:
-                    text = getString(R.string.text_other_and_number_are_shopping)
-                            .replace("%1$s", otherUsers.get(0))
-                            .replace("%2$d", String.valueOf(otherUsers.size() - 1));
+                    text = getString(R.string.text_other_and_number_are_shopping
+                            , otherUsers.get(0)
+                            , otherUsers.size() - 1);
                     break;
             }
         }

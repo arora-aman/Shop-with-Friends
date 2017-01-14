@@ -128,7 +128,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()) Log.d(TAG, "email sent" );
+                        if(task.isSuccessful()) Log.d(TAG, getString(R.string.email_sent));
                     }
                 });
                 dialog.dismiss();

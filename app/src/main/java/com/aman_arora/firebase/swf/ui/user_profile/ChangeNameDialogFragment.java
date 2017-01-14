@@ -18,23 +18,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.HashMap;
 
-public class ChangePasswordDialogFragment extends android.support.v4.app.DialogFragment {
+public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragment {
 
-    private static final String TAG = ChangePasswordDialogFragment.class.getSimpleName();
-    private String mUserEmail;
+    private static final String TAG = ReAuthenticateDialogFragment.class.getSimpleName();
     private EditText mEditTextEmailInput, mEditTextPasswordInput;
-    private String mNewPassword;
+    private String mUserEmail, mUserName;
     private FirebaseUser userToValidate;
 
-    public static ChangePasswordDialogFragment newInstance(HashMap<String, Object> currentUser, String userEmail, String newPassword) {
-        ChangePasswordDialogFragment fragment = new ChangePasswordDialogFragment();
+    public static ChangeNameDialogFragment newInstance(HashMap<String, Object> currentUser,
+                                                       String userEmail, String newName) {
+        ChangeNameDialogFragment fragment = new ChangeNameDialogFragment();
         Bundle args = new Bundle();
         args.putSerializable(Constants.KEY_CURRENT_USER, currentUser);
-        args.putSerializable(Constants.KEY_EMAIL, userEmail);
-        args.putSerializable(Constants.KEY_PASSWORD, newPassword);
+        args.putString(Constants.KEY_EMAIL, userEmail);
+        args.putString(Constants.KEY_NAME, newName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,9 +47,8 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
         userToValidate = (FirebaseUser) ((HashMap<String, Object>) getArguments().getSerializable(Constants.KEY_CURRENT_USER))
                 .get(Constants.KEY_CURRENT_USER);
         mUserEmail = getArguments().getString(Constants.KEY_EMAIL);
-        mNewPassword = getArguments().getString(Constants.KEY_PASSWORD);
+        mUserName = getArguments().getString(Constants.KEY_NAME);
     }
-
 
     @NonNull
     @Override
@@ -58,9 +58,10 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_re_authenticate, null);
         mEditTextEmailInput = (EditText) view.findViewById(R.id.re_auth_edit_text_email);
         mEditTextPasswordInput = (EditText) view.findViewById(R.id.re_auth_edit_text_password);
-        Button mValidateUser = (Button) view.findViewById(R.id.re_auth_validate);
-        view.findViewById(R.id.mustVerifyEmail).setVisibility(View.GONE);
         if (mUserEmail != null) mEditTextEmailInput.setText(mUserEmail);
+        view.findViewById(R.id.mustVerifyEmail).setVisibility(View.GONE);
+        Button mValidateUser = (Button) view.findViewById(R.id.re_auth_validate);
+
         mValidateUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,19 +97,25 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
                             Toast.makeText(getActivity(), R.string.error_validating_user, Toast.LENGTH_SHORT)
                                     .show();
                         } else {
-                            userToValidate.updatePassword(mNewPassword)
+                            UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(mUserName)
+                                    .build();
+                            userToValidate.updateProfile(profileUpdate)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
-                                            Log.d(TAG, "onComplete: " + task.isSuccessful());
-                                            if(task.isSuccessful()){
-                                                Toast.makeText(getActivity(), R.string.password_updated, Toast.LENGTH_SHORT)
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(getActivity(), R.string.profile_updated, Toast.LENGTH_SHORT)
                                                         .show();
-                                            }else{
+                                                Log.d(TAG, "onComplete: " + 123 + userToValidate.getDisplayName());
+                                                //TODO: change name in userFriends;
+                                                //TODO: create a node friendsOf to keep track
+                                            } else {
+                                                //TODO: if reauth error call re-auth;
                                                 Toast.makeText(getActivity(), R.string.error_profile_update_request_not_completed,
-                                                        Toast.LENGTH_SHORT).show();
+                                                        Toast.LENGTH_SHORT)
+                                                        .show();
                                             }
-                                            dismiss();
                                         }
                                     });
                         }

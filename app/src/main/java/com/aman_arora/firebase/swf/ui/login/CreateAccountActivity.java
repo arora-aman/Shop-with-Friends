@@ -34,7 +34,6 @@ import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
 
-//TODO: setup verification on account creation via email/password and make it more secure 0.3.17, L3 -> 27/37
 public class CreateAccountActivity extends BaseActivity {
     private ProgressDialog mAuthProgressDialog;
     private EditText mEditTextUsernameCreate, mEditTextEmailCreate, mEditTextPasswordCreate;

@@ -56,15 +56,12 @@ public class ActiveListsAdapter  extends FirebaseListAdapter<ShoppingList>{
 
         String shoppingUsersText;
         if(model.getShoppingUsers() != null){
-            //TODO: use format of getString(ID, replacements) just like printf(); instead of using replace
             switch (model.getShoppingUsers().size()) {
                 case 1:
-                    shoppingUsersText = mActivity.getString(R.string.person_shopping)
-                            .replace("%d", "1");
+                    shoppingUsersText = mActivity.getString(R.string.person_shopping,1);
                     break;
                 default:
-                    shoppingUsersText = mActivity.getString(R.string.people_shopping)
-                            .replace("%d", String.valueOf(model.getShoppingUsers().size()));
+                    shoppingUsersText = mActivity.getString(R.string.people_shopping, model.getShoppingUsers().size());
                     break;
             }
             shoppingUsers.setText(shoppingUsersText);

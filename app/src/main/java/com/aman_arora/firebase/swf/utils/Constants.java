@@ -45,7 +45,7 @@ public final class Constants {
     public static final String KEY_PASSWORD = "passwordKey";
     public static final String PREFERENCE_PROVIDER = "ProviderFortHelUsErEmail";
     public static final String PROVIDER_EMAIL_PASSWORD = "EmaiLnPassWord";
-
+    public static final String KEY_NAME = "keyName";
     //Sort preferences
 
     public static final String KEY_PREF_SORT_ORDER_LISTS = "PERF_SORT_ORDER_LISTS";

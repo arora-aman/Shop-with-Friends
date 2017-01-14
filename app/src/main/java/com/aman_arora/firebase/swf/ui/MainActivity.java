@@ -15,27 +15,16 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.aman_arora.firebase.swf.R;
-import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.ui.activeLists.AddListDialogFragment;
 import com.aman_arora.firebase.swf.ui.activeLists.ShoppingListsFragment;
 import com.aman_arora.firebase.swf.ui.login.LoginActivity;
 import com.aman_arora.firebase.swf.ui.meals.AddMealDialogFragment;
 import com.aman_arora.firebase.swf.ui.user_profile.ProfileFragment;
-import com.aman_arora.firebase.swf.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 
 public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private ValueEventListener mEmailValueEventListener;
-    private DatabaseReference userRef;
-//    private FirebaseAuth mAuth;
-//    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,57 +32,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         initializeScreen();
         Log.d("mainActivity", "onCreate: " +  mEncodedEmail);
-        userRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USERS_URL).child(mEncodedEmail);
-
-        mEmailValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                if (user != null) {
-                    setTitle(user.getName() + "'s Lists");
-                    Log.d(LOG_TAG, "onDataChange: " + user.getName());
-                }else{
-                    showErrorToast(getString(R.string.user_not_found));
-                    finish();
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(LOG_TAG,
-                        MainActivity.this.getString(R.string.log_error_the_read_failed) +
-                                databaseError.getMessage());
-            }
-        };
-
-//        mAuth = FirebaseAuth.getInstance();
-//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                FirebaseUser user = firebaseAuth.getCurrentUser();
-//                if(user == null) finish();
-//                else {
-//                    Log.d(LOG_TAG, "onAuthStateChanged: "+ user.isEmailVerified());
-//                }
-//            }
-//        };
-//
-//        mAuth.addAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        userRef.addValueEventListener(mEmailValueEventListener);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mEmailValueEventListener != null) userRef.removeEventListener(mEmailValueEventListener);
-//        if (mAuthStateListener != null) mAuth.removeAuthStateListener(mAuthStateListener);
-    }
+     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

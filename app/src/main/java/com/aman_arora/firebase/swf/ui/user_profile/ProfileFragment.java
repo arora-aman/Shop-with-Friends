@@ -23,7 +23,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.HashMap;
 
@@ -52,7 +51,6 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, null, false);
         initialiseScreen(view);
-
         mAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -67,7 +65,9 @@ public class ProfileFragment extends Fragment {
                 currentUser = user;
                 mEmailTV.setText(user.getEmail());
                 mNameET.setText(user.getDisplayName());
+                getActivity().setTitle(user.getDisplayName() + "'s Lists");
                 isUserVerified = user.isEmailVerified();
+                Log.d(TAG, "onAuthStateChanged: " + user.getDisplayName());
                 Log.d(TAG, "onAuthStateChanged: " + isUserVerified);
                 if (isUserVerified) {
                     mSendVerificationEmail.setVisibility(View.GONE);
@@ -172,11 +172,10 @@ public class ProfileFragment extends Fragment {
         String newPassword = mPasswordET.getText().toString();
         if (newPassword.length() > 0) {
             String confirmPass = mConfirmPassET.getText().toString();
-            if (newPassword.length() < 8) {
+            if (newPassword.length() < 6) {
                 Toast.makeText(getActivity(),
                         getString(R.string.error_invalid_password_not_valid), Toast.LENGTH_LONG).show();
-            }
-            else if (!newPassword.equals(confirmPass)) {
+            } else if (!newPassword.equals(confirmPass)) {
                 Toast.makeText(getActivity(), R.string.passwords_dont_match, Toast.LENGTH_SHORT).show();
             } else {
                 HashMap<String, Object> userObject = new HashMap<String, Object>();
@@ -189,35 +188,25 @@ public class ProfileFragment extends Fragment {
 
     }
 
-    public void onUpdateClicked(){
+    public void onUpdateClicked() {
         String newName = mNameET.getText().toString();
-        if (newName.length() > 0) {
+        String newPassword = mPasswordET.getText().toString();
+        Log.d(TAG, "onUpdateClicked: " + newName);
+        if (newPassword.length() > 0) {
             Toast.makeText(getActivity(), R.string.error_update_password_first, Toast.LENGTH_SHORT)
                     .show();
-        }else if(newName.equals(currentUser.getDisplayName())){
+        } else if (newName.length() <= 0) {
+            mNameET.setError(getString(R.string.error_cannot_be_empty));
+        } else if (newName.equals(currentUser.getDisplayName())) {
             Toast.makeText(getActivity(), R.string.error_no_update, Toast.LENGTH_SHORT).show();
-        }else{
-            UserProfileChangeRequest userProfileChangeRequest
-                    = new UserProfileChangeRequest.Builder()
-                    .setDisplayName(newName)
-                    .build();
+        } else {
+            HashMap<String, Object> userObject = new HashMap<String, Object>();
+            userObject.put(Constants.KEY_CURRENT_USER, currentUser);
+            ChangeNameDialogFragment changeNameDialog = ChangeNameDialogFragment.newInstance(userObject,
+                    currentUser.getEmail(), newName);
+            changeNameDialog.show(getFragmentManager(), "re_authFrag");
 
-            currentUser.updateProfile(userProfileChangeRequest)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                Toast.makeText(getActivity(), R.string.profile_updated, Toast.LENGTH_SHORT)
-                                        .show();
-                                //TODO: change name in userFriends;
-                                //TODO: create a node friendsOf to keep track
-                            }else{
-                                //TODO: if reauth error call re-auth;
-                                Toast.makeText(getActivity(), R.string.profile_updated, Toast.LENGTH_SHORT)
-                                        .show();
-                            }
-                        }
-                    });
+
         }
     }
 
