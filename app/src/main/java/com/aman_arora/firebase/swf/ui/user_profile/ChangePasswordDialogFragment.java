@@ -3,9 +3,11 @@ package com.aman_arora.firebase.swf.ui.user_profile;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +30,7 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
     private EditText mEditTextEmailInput, mEditTextPasswordInput;
     private String mNewPassword;
     private FirebaseUser userToValidate;
+    private Context mContext;
 
     public static ChangePasswordDialogFragment newInstance(HashMap<String, Object> currentUser, String userEmail, String newPassword) {
         ChangePasswordDialogFragment fragment = new ChangePasswordDialogFragment();
@@ -37,6 +40,12 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
         args.putSerializable(Constants.KEY_PASSWORD, newPassword);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     @Override
@@ -54,8 +63,8 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_re_authenticate, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.dialog_re_authenticate, null);
         mEditTextEmailInput = (EditText) view.findViewById(R.id.re_auth_edit_text_email);
         mEditTextPasswordInput = (EditText) view.findViewById(R.id.re_auth_edit_text_password);
         Button mValidateUser = (Button) view.findViewById(R.id.re_auth_validate);
@@ -70,6 +79,7 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
         builder.setView(view);
         return builder.create();
     }
+
 
     public boolean validateDetails() {
         boolean validEmail = false, validPassword = false;
@@ -93,7 +103,7 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (!task.isSuccessful()) {
-                            Toast.makeText(getActivity(), R.string.error_validating_user, Toast.LENGTH_SHORT)
+                            Toast.makeText(mContext, R.string.error_validating_user, Toast.LENGTH_SHORT)
                                     .show();
                         } else {
                             userToValidate.updatePassword(mNewPassword)
@@ -102,10 +112,10 @@ public class ChangePasswordDialogFragment extends android.support.v4.app.DialogF
                                         public void onComplete(@NonNull Task<Void> task) {
                                             Log.d(TAG, "onComplete: " + task.isSuccessful());
                                             if(task.isSuccessful()){
-                                                Toast.makeText(getActivity(), R.string.password_updated, Toast.LENGTH_SHORT)
+                                                Toast.makeText(mContext, R.string.password_updated, Toast.LENGTH_SHORT)
                                                         .show();
                                             }else{
-                                                Toast.makeText(getActivity(), R.string.error_profile_update_request_not_completed,
+                                                Toast.makeText(mContext, R.string.error_profile_update_request_not_completed,
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                             dismiss();

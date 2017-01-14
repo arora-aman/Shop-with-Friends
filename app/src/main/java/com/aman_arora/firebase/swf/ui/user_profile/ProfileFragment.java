@@ -147,7 +147,7 @@ public class ProfileFragment extends Fragment {
     }
 
     public void initialiseScreen(View view) {
-
+        Log.d(TAG, "initialiseScreen: " + getActivity().toString());
         mNameET = (EditText) view.findViewById(R.id.profile_edit_text_name);
         mEmailTV = (TextView) view.findViewById(R.id.profile_text_view_email);
         mPasswordET = (EditText) view.findViewById(R.id.profile_edit_text_password);
@@ -178,6 +178,7 @@ public class ProfileFragment extends Fragment {
             } else if (!newPassword.equals(confirmPass)) {
                 Toast.makeText(getActivity(), R.string.passwords_dont_match, Toast.LENGTH_SHORT).show();
             } else {
+                mPasswordET.setText("");
                 HashMap<String, Object> userObject = new HashMap<String, Object>();
                 userObject.put(Constants.KEY_CURRENT_USER, currentUser);
                 ChangePasswordDialogFragment fragment =

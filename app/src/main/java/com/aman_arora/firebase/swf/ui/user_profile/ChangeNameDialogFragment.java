@@ -3,9 +3,11 @@ package com.aman_arora.firebase.swf.ui.user_profile;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,6 +36,7 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
     private EditText mEditTextEmailInput, mEditTextPasswordInput;
     private String mUserEmail, mUserName;
     private FirebaseUser userToValidate;
+    private Context mContext;
 
     public static ChangeNameDialogFragment newInstance(HashMap<String, Object> currentUser,
                                                        String userEmail, String newName) {
@@ -56,12 +59,18 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
         mUserName = getArguments().getString(Constants.KEY_NAME);
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_re_authenticate, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.dialog_re_authenticate, null);
         mEditTextEmailInput = (EditText) view.findViewById(R.id.re_auth_edit_text_email);
         mEditTextPasswordInput = (EditText) view.findViewById(R.id.re_auth_edit_text_password);
         if (mUserEmail != null) mEditTextEmailInput.setText(mUserEmail);
@@ -77,6 +86,7 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
         builder.setView(view);
         return builder.create();
     }
+
 
     public boolean validateDetails() {
         boolean validEmail = false, validPassword = false;
@@ -100,7 +110,7 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (!task.isSuccessful()) {
-                            Toast.makeText(getActivity(), R.string.error_validating_user, Toast.LENGTH_SHORT)
+                            Toast.makeText(mContext, R.string.error_validating_user, Toast.LENGTH_SHORT)
                                     .show();
                         } else {
                             UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
@@ -111,8 +121,8 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-//                                                Toast.makeText(getActivity(), R.string.profile_updated, Toast.LENGTH_SHORT)
-//                                                        .show();
+                                                Toast.makeText(mContext, R.string.profile_updated, Toast.LENGTH_SHORT)
+                                                        .show();
                                                 Log.d(TAG, "onComplete: " + 123 + userToValidate.getDisplayName());
 
                                                 HashMap<String, Object> nameUpdate = new HashMap<String, Object>();
@@ -122,7 +132,7 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
                                                 updateNames(nameUpdate);
                                             } else {
                                                 //TODO: if reauth error call re-auth;
-                                                Toast.makeText(getActivity(), R.string.error_profile_update_request_not_completed,
+                                                Toast.makeText(mContext, R.string.error_profile_update_request_not_completed,
                                                         Toast.LENGTH_SHORT)
                                                         .show();
                                             }
@@ -134,15 +144,15 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
                 });
     }
 
-    private void updateNames(final HashMap<String, Object> update){
+    private void updateNames(final HashMap<String, Object> update) {
         String friendOfUrl = Constants.FIREBASE_URL + '/' + Constants.FIREBASE_FRIEND_OF_LOCATION +
                 '/' + Utils.encodeEmail(mUserEmail);
         DatabaseReference ref = FirebaseDatabase.getInstance().getReferenceFromUrl(friendOfUrl);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
-                    update.put(Constants.FIREBASE_USER_FRIENDS_LOCATION + '/' +  snapshot.getKey()
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    update.put(Constants.FIREBASE_USER_FRIENDS_LOCATION + '/' + snapshot.getKey()
                             + '/' + Utils.encodeEmail(mUserEmail)
                             + '/' + Constants.PROPERTY_USER_NAME, mUserName);
                 }
@@ -153,12 +163,12 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(getActivity().getClass().getSimpleName(),
-                        getActivity().getString(R.string.log_error_the_read_failed) +
+                Log.e(mContext.getClass().getSimpleName(),
+                        mContext.getString(R.string.log_error_the_read_failed) +
                                 databaseError.getMessage());
             }
         });
-
-
     }
+
+
 }
