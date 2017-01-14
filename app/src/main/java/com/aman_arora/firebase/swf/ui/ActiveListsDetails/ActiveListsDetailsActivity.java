@@ -293,14 +293,15 @@ public class ActiveListsDetailsActivity extends BaseActivity {
         String updateKey = Constants.PROPERTY_LIST_SHOPPING_USERS + '/' + mEncodedEmail;
 
         if (!isShopping) {
-            Utils.createUpdatePackage(updatePackage, mEncodedEmail, mPushId, updateKey, currentUser, sharedUsers);
-            Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId, sharedUsers);
+            Utils.createUpdatePackage(updatePackage, shoppingList.getOwner(), mPushId, updateKey, currentUser, sharedUsers);
+            for(Object object: updatePackage.entrySet()) Log.d(TAG, "toggleShopping: " + object.toString());
+            Utils.createTimeStampUpdatePackage(updatePackage, shoppingList.getOwner(), mPushId, sharedUsers);
             firebaseRef.updateChildren(updatePackage);
             startShopping();
 
         } else {
-            Utils.createUpdatePackage(updatePackage, mEncodedEmail, mPushId, updateKey, null, sharedUsers);
-            Utils.createTimeStampUpdatePackage(updatePackage, mEncodedEmail, mPushId, sharedUsers);
+            Utils.createUpdatePackage(updatePackage, shoppingList.getOwner(), mPushId, updateKey, null, sharedUsers);
+            Utils.createTimeStampUpdatePackage(updatePackage, shoppingList.getOwner(), mPushId, sharedUsers);
             firebaseRef.updateChildren(updatePackage);
             stopShopping();
         }

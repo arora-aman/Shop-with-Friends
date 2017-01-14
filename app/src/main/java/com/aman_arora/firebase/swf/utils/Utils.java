@@ -1,6 +1,7 @@
 package com.aman_arora.firebase.swf.utils;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.aman_arora.firebase.swf.model.User;
 import com.google.firebase.database.ServerValue;
@@ -37,7 +38,7 @@ public class Utils {
                                                               String owner, String listID, String key, Object value,
                                                               HashMap<String, User> sharedUsers) {
 
-
+        Log.d("ActiveListDetailsUtils", "createUpdatePackage: " + Constants.FIREBASE_USER_LISTS_LOCATION + "/" + owner + "/" + listID + "/" + key + "   " + value);
         update.put(Constants.FIREBASE_USER_LISTS_LOCATION + "/" + owner + "/" + listID + "/" + key, value);
 
         if (sharedUsers != null) {

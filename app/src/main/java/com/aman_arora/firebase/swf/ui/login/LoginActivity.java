@@ -51,9 +51,6 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        FirebaseAuth.getInstance().signOut();
-
-
         initializeScreen();
 
         mEditTextPasswordInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -73,6 +70,7 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
+                Log.d(TAG, "onAuthStateChanged: 1221" + (user != null ? user.toString() : "123234312r43w12123"));
                 if (user != null) {
                     onAuthChanged(user, LoginActivity.this);
                 }

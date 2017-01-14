@@ -81,10 +81,11 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
         itemName.setPaintFlags(itemName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         boughtBy.setVisibility(View.VISIBLE);
         boughtByUser.setVisibility(View.VISIBLE);
+        Log.d(TAG, "onBought: ");
         if (mCurrentUser.equals(listItem.getBoughtBy())) boughtByUser.setText(R.string.text_you);
         else {
             DatabaseReference userRef = FirebaseDatabase.getInstance()
-                    .getReferenceFromUrl(Constants.FIREBASE_USERS_URL).child(mCurrentUser);
+                    .getReferenceFromUrl(Constants.FIREBASE_USERS_URL).child(listItem.getBoughtBy());
 
             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -102,7 +103,6 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
                 }
             });
         }
-
     }
 
     private void onNotBought(TextView itemName, ImageButton deleteList, boolean showDeleteButton,
