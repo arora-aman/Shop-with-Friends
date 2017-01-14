@@ -27,13 +27,8 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
     private static final String TAG = "ListItemAdapter";
     private String mListPushID;
     private Activity mActivity;
-    private TextView itemName;
     private String mCurrentUser;
     private String mListOwner;
-    private TextView boughtBy;
-    private TextView boughtByUser;
-    private ImageButton deleteList;
-    private boolean showDeleteButton = false;
     private HashMap<String, User> mSharedWithUsersList;
 
     public ListItemAdapter(Activity activity, Class<ListItem> modelClass, int modelLayout, Query ref,
@@ -54,16 +49,16 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
 
     @Override
     protected void populateView(View view, final ListItem model, final int position) {
-        itemName = (TextView) view.findViewById(R.id.text_view_active_list_item_name);
-        deleteList = (ImageButton) view.findViewById(R.id.button_remove_item);
-        boughtBy = (TextView) view.findViewById(R.id.text_view_bought_by);
-        boughtByUser = (TextView) view.findViewById(R.id.text_view_bought_by_user);
+        boolean showDeleteButton = false;
+        TextView itemName = (TextView) view.findViewById(R.id.text_view_active_list_item_name);
+        ImageButton deleteList = (ImageButton) view.findViewById(R.id.button_remove_item);
+        TextView boughtBy = (TextView) view.findViewById(R.id.text_view_bought_by);
+        TextView boughtByUser = (TextView) view.findViewById(R.id.text_view_bought_by_user);
         itemName.setText(model.getItemName());
 
-        if(mCurrentUser.equals(mListOwner) || mCurrentUser.equals(model.getOwner())){
+        if (mCurrentUser.equals(mListOwner) || mCurrentUser.equals(model.getOwner())) {
             showDeleteButton = true;
-        }else deleteList.setVisibility(View.INVISIBLE);
-
+        } else deleteList.setVisibility(View.INVISIBLE);
 
 
         deleteList.setOnClickListener(new View.OnClickListener() {
@@ -76,11 +71,12 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
             }
         });
 
-        if(model.isBought())onBought(model);
-        else onNotBought();
+        if (model.isBought()) onBought(model, itemName, deleteList, boughtBy, boughtByUser);
+        else onNotBought(itemName, deleteList, showDeleteButton, boughtBy, boughtByUser);
     }
 
-    private void onBought(ListItem listItem) {
+    private void onBought(ListItem listItem, TextView itemName, ImageButton deleteList,
+                          TextView boughtBy, final TextView boughtByUser) {
         deleteList.setVisibility(View.INVISIBLE);
         itemName.setPaintFlags(itemName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         boughtBy.setVisibility(View.VISIBLE);
@@ -109,8 +105,9 @@ public class ListItemAdapter extends FirebaseListAdapter<ListItem> {
 
     }
 
-    private void onNotBought(){
-        if(showDeleteButton)deleteList.setVisibility(View.VISIBLE);
+    private void onNotBought(TextView itemName, ImageButton deleteList, boolean showDeleteButton,
+                             TextView boughtBy, TextView boughtByUser) {
+        if (showDeleteButton) deleteList.setVisibility(View.VISIBLE);
         itemName.setPaintFlags(itemName.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         boughtBy.setVisibility(View.INVISIBLE);
         boughtByUser.setVisibility(View.INVISIBLE);

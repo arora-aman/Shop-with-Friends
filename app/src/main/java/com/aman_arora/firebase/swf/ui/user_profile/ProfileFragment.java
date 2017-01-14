@@ -206,8 +206,6 @@ public class ProfileFragment extends Fragment {
             ChangeNameDialogFragment changeNameDialog = ChangeNameDialogFragment.newInstance(userObject,
                     currentUser.getEmail(), newName);
             changeNameDialog.show(getFragmentManager(), "re_authFrag");
-
-
         }
     }
 

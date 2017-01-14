@@ -54,7 +54,7 @@ public class CreateAccountActivity extends BaseActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     onAuthChanged(user, CreateAccountActivity.this);
-                } else showErrorToast("Register some bs happened!/ Signed out!");
+                }
             }
         };
     }

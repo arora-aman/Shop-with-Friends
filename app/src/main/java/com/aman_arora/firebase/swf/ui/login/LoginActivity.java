@@ -75,7 +75,7 @@ public class LoginActivity extends BaseActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     onAuthChanged(user, LoginActivity.this);
-                } else showErrorToast("LoginNope some bs happened!/ Signed out!");
+                }
             }
         };
 
