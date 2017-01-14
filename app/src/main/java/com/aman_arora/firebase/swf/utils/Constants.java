@@ -27,6 +27,8 @@ public final class Constants {
     public static final String FIREBASE_UID_MAPPINGS_LOCATION = BuildConfig.FIREBASE_UID_MAPPINGS;
     public static final String FIREBASE_LIST_OWNERS_LOCATION = BuildConfig.FIREBASE_LIST_OWNER_LOCATION;
     public static final String FIREBASE_USER_VERIFIED_LOCATION = BuildConfig.FIREBASE_USER_VERIFIED_LCOATION;
+    public static final String FIREBASE_FRIEND_OF_LOCATION = BuildConfig.FIREBASE_FRIEND_OF_LOCATION;
+    public static final String PROPERTY_USER_NAME = BuildConfig.PROPERTY_USER_NAME;
 
     //EditListDialogFragment Key values for bundle
     public static final String KEY_LAYOUT_RESOURCE = "LAYOUT_RESOURCE";

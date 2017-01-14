@@ -13,12 +13,18 @@ import android.widget.Toast;
 
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.utils.Constants;
+import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
@@ -105,11 +111,15 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(getActivity(), R.string.profile_updated, Toast.LENGTH_SHORT)
-                                                        .show();
+//                                                Toast.makeText(getActivity(), R.string.profile_updated, Toast.LENGTH_SHORT)
+//                                                        .show();
                                                 Log.d(TAG, "onComplete: " + 123 + userToValidate.getDisplayName());
-                                                //TODO: change name in userFriends;
-                                                //TODO: create a node friendsOf to keep track
+
+                                                HashMap<String, Object> nameUpdate = new HashMap<String, Object>();
+                                                String userNodeUpdateKey = Constants.USER_LOCATION + '/' +
+                                                        Utils.encodeEmail(userToValidate.getEmail()) + '/' + Constants.PROPERTY_USER_NAME;
+                                                nameUpdate.put(userNodeUpdateKey, mUserName);
+                                                updateNames(nameUpdate);
                                             } else {
                                                 //TODO: if reauth error call re-auth;
                                                 Toast.makeText(getActivity(), R.string.error_profile_update_request_not_completed,
@@ -122,5 +132,33 @@ public class ChangeNameDialogFragment extends android.support.v4.app.DialogFragm
                         dismiss();
                     }
                 });
+    }
+
+    private void updateNames(final HashMap<String, Object> update){
+        String friendOfUrl = Constants.FIREBASE_URL + '/' + Constants.FIREBASE_FRIEND_OF_LOCATION +
+                '/' + Utils.encodeEmail(mUserEmail);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReferenceFromUrl(friendOfUrl);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
+                    update.put(Constants.FIREBASE_USER_FRIENDS_LOCATION + '/' +  snapshot.getKey()
+                            + '/' + Utils.encodeEmail(mUserEmail)
+                            + '/' + Constants.PROPERTY_USER_NAME, mUserName);
+                }
+                FirebaseDatabase.getInstance()
+                        .getReferenceFromUrl(Constants.FIREBASE_URL)
+                        .updateChildren(update);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(getActivity().getClass().getSimpleName(),
+                        getActivity().getString(R.string.log_error_the_read_failed) +
+                                databaseError.getMessage());
+            }
+        });
+
+
     }
 }

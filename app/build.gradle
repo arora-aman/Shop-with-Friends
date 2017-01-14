@@ -39,6 +39,8 @@ android {
             it.buildConfigField 'String', 'FIREBASE_UID_MAPPINGS', uidMappings
             it.buildConfigField 'String', 'FIREBASE_LIST_OWNER_LOCATION', listOwnerlocation
             it.buildConfigField 'String', 'FIREBASE_USER_VERIFIED_LCOATION', userVerified
+            it.buildConfigField 'String', 'FIREBASE_FRIEND_OF_LOCATION', friendOf
+            it.buildConfigField 'String', 'PROPERTY_USER_NAME', userName
     }
     packagingOptions {
         exclude 'META-INF/LICENSE'

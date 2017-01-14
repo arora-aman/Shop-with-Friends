@@ -19,6 +19,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+
 
 public class AutocompleteFriendAdapter extends FirebaseListAdapter<User> {
 
@@ -56,7 +58,17 @@ public class AutocompleteFriendAdapter extends FirebaseListAdapter<User> {
 
                         if(isNotAlreadyAdded(dataSnapshot, model)){
                             Log.d(TAG, "onDataChange: " +  model.toString());
-                            friendRef.setValue(model);
+//                            friendRef.setValue(model);
+                            HashMap<String, Object> addFriend = new HashMap<String, Object>();
+                            String userFriendsKey = Constants.FIREBASE_USER_FRIENDS_LOCATION + '/'
+                                    + mEncodedEmail + '/' + model.getEmail();
+                            addFriend.put(userFriendsKey, model);
+                            String friendOfKey = Constants.FIREBASE_FRIEND_OF_LOCATION + '/' +
+                                    model.getEmail() + '/' + mEncodedEmail;
+                            addFriend.put(friendOfKey, true);
+                            Log.d(TAG, "onDataChange: " + addFriend.toString());
+                            FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_URL)
+                                    .updateChildren(addFriend);
                         }
 
                             mActivity.finish();
