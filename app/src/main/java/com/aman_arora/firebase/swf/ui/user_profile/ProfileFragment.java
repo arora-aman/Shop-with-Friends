@@ -18,11 +18,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aman_arora.firebase.swf.R;
+import com.aman_arora.firebase.swf.model.User;
 import com.aman_arora.firebase.swf.utils.Constants;
+import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
@@ -37,14 +44,26 @@ public class ProfileFragment extends Fragment {
     private TextView mEmailTV, mUserVerifiedTV;
     private boolean isUserVerified;
     private FirebaseUser currentUser;
+    private User currUser;
+    private ValueEventListener mUserEventListener;
+    private DatabaseReference userRef;
+    private String mEncodedEmail;
 
-    public static ProfileFragment newInstance() {
+    public static ProfileFragment newInstance(String encodedEmail) {
         ProfileFragment profileFragment = new ProfileFragment();
         Bundle args = new Bundle();
+        args.putString(Constants.PREFERENCE_ENCODED_EMAIL, encodedEmail);
         profileFragment.setArguments(args);
         return profileFragment;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mEncodedEmail = getArguments().getString(Constants.PREFERENCE_ENCODED_EMAIL);
+        }
+    }
 
     @Nullable
     @Override
@@ -52,6 +71,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, null, false);
         initialiseScreen(view);
         mAuth = FirebaseAuth.getInstance();
+        userRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_USERS_URL).child(mEncodedEmail);
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -64,8 +84,8 @@ public class ProfileFragment extends Fragment {
                 }
                 currentUser = user;
                 mEmailTV.setText(user.getEmail());
-                mNameET.setText(user.getDisplayName());
-                getActivity().setTitle(user.getDisplayName() + "'s Lists");
+//                mNameET.setText(user.getDisplayName());
+//                getActivity().setTitle(user.getDisplayName() + "'s Lists");
                 isUserVerified = user.isEmailVerified();
                 Log.d(TAG, "onAuthStateChanged: " + user.getDisplayName());
                 Log.d(TAG, "onAuthStateChanged: " + isUserVerified);
@@ -97,6 +117,24 @@ public class ProfileFragment extends Fragment {
                         }
                     });
                 }
+            }
+        };
+
+        mUserEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                currUser = dataSnapshot.getValue(User.class);
+                if(currUser != null){
+                    mNameET.setText(currUser.getName());
+                    getActivity().setTitle(currUser.getName() + "'s Lists");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(getActivity().getClass().getSimpleName(),
+                        getActivity().getString(R.string.log_error_the_read_failed) +
+                                databaseError.getMessage());
             }
         };
 
@@ -141,9 +179,16 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        userRef.addValueEventListener(mUserEventListener);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         mAuth.addAuthStateListener(mAuthStateListener);
+        userRef.addValueEventListener(mUserEventListener);
     }
 
     public void initialiseScreen(View view) {
@@ -166,6 +211,7 @@ public class ProfileFragment extends Fragment {
     public void onPause() {
         super.onPause();
         if (mAuthStateListener != null) mAuth.removeAuthStateListener(mAuthStateListener);
+        if(mUserEventListener != null)userRef.removeEventListener(mUserEventListener);
     }
 
     public void changePassword() {
@@ -179,11 +225,25 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getActivity(), R.string.passwords_dont_match, Toast.LENGTH_SHORT).show();
             } else {
                 mPasswordET.setText("");
-                HashMap<String, Object> userObject = new HashMap<String, Object>();
-                userObject.put(Constants.KEY_CURRENT_USER, currentUser);
-                ChangePasswordDialogFragment fragment =
-                        ChangePasswordDialogFragment.newInstance(userObject, currentUser.getEmail(), newPassword);
-                fragment.show(getFragmentManager(), "re_authFragment");
+//                HashMap<String, Object> userObject = new HashMap<String, Object>();
+//                userObject.put(Constants.KEY_CURRENT_USER, currentUser);
+//                ChangePasswordDialogFragment fragment =
+//                        ChangePasswordDialogFragment.newInstance(userObject, currentUser.getEmail(), newPassword);
+//                fragment.show(getFragmentManager(), "re_authFragment");
+                currentUser.updatePassword(newPassword)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d(TAG, "onComplete: " + task.isSuccessful());
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(getActivity(), R.string.password_updated, Toast.LENGTH_SHORT)
+                                            .show();
+                                } else {
+                                    Toast.makeText(getActivity(), R.string.error_profile_update_request_not_completed,
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
             }
         }
 
@@ -201,12 +261,43 @@ public class ProfileFragment extends Fragment {
         } else if (newName.equals(currentUser.getDisplayName())) {
             Toast.makeText(getActivity(), R.string.error_no_update, Toast.LENGTH_SHORT).show();
         } else {
-            HashMap<String, Object> userObject = new HashMap<String, Object>();
-            userObject.put(Constants.KEY_CURRENT_USER, currentUser);
-            ChangeNameDialogFragment changeNameDialog = ChangeNameDialogFragment.newInstance(userObject,
-                    currentUser.getEmail(), newName);
-            changeNameDialog.show(getFragmentManager(), "re_authFrag");
+//            HashMap<String, Object> userObject = new HashMap<String, Object>();
+//            userObject.put(Constants.KEY_CURRENT_USER, currentUser);
+//            ChangeNameDialogFragment changeNameDialog = ChangeNameDialogFragment.newInstance(userObject,
+//                    currentUser.getEmail(), newName);
+//            changeNameDialog.show(getFragmentManager(), "re_authFrag");
+            HashMap<String, Object> nameUpdate = new HashMap<String, Object>();
+            String userNodeUpdateKey = Constants.USER_LOCATION + '/' +
+                    Utils.encodeEmail(currentUser.getEmail()) + '/' + Constants.PROPERTY_USER_NAME;
+            nameUpdate.put(userNodeUpdateKey, newName);
+            updateNames(newName, nameUpdate);
         }
+    }
+
+    private void updateNames(final String userName, final HashMap<String, Object> update) {
+        String friendOfUrl = Constants.FIREBASE_URL + '/' + Constants.FIREBASE_FRIEND_OF_LOCATION +
+                '/' + Utils.encodeEmail(currentUser.getEmail());
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReferenceFromUrl(friendOfUrl);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    update.put(Constants.FIREBASE_USER_FRIENDS_LOCATION + '/' + snapshot.getKey()
+                            + '/' + Utils.encodeEmail(currentUser.getEmail())
+                            + '/' + Constants.PROPERTY_USER_NAME, userName);
+                }
+                FirebaseDatabase.getInstance()
+                        .getReferenceFromUrl(Constants.FIREBASE_URL)
+                        .updateChildren(update);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(getActivity().getClass().getSimpleName(),
+                        getActivity().getString(R.string.log_error_the_read_failed) +
+                                databaseError.getMessage());
+            }
+        });
     }
 
 }

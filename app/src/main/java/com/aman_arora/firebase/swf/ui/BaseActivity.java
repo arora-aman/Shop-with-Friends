@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -118,7 +117,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                onDialogResult(context);
             }
         });
         builder.setPositiveButton(getString(R.string.positive_button_yes), new DialogInterface.OnClickListener(){
@@ -132,19 +130,16 @@ public abstract class BaseActivity extends AppCompatActivity implements
                     }
                 });
                 dialog.dismiss();
-                onDialogResult(context);
             }
         });
         builder.setCancelable(false);
         return  builder.create();
     }
 
-    private void onDialogResult(Context context) {
-        startActivity(new Intent(context, MainActivity.class));
-        finish();
-    }
-
     protected void onAuthChanged(FirebaseUser user, final Context context){
+        if(!getNetworkState()){
+            return;
+        }
         Dialog verificationDialog = verifyEmail(user, context);
         if(!user.isEmailVerified())verificationDialog.show();
         else{
@@ -157,7 +152,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     Log.d(TAG, "onComplete: " + (databaseError == null));
-                    onDialogResult(context);
                 }
             });
         }
@@ -166,6 +160,11 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
     protected void showErrorToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    protected boolean getNetworkState(){
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFERENCE_LOGIN_FILE, MODE_PRIVATE);
+        return sharedPreferences.getBoolean(Constants.KEY_NETWORK_INFO, false);
     }
 
 }

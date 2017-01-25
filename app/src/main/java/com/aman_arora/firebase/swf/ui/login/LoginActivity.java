@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.aman_arora.firebase.swf.R;
 import com.aman_arora.firebase.swf.ui.BaseActivity;
+import com.aman_arora.firebase.swf.ui.MainActivity;
 import com.aman_arora.firebase.swf.utils.Constants;
 import com.aman_arora.firebase.swf.utils.Utils;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -70,9 +71,9 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                Log.d(TAG, "onAuthStateChanged: 1221" + (user != null ? user.toString() : "123234312r43w12123"));
                 if (user != null) {
-                    onAuthChanged(user, LoginActivity.this);
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
                 }
             }
         };
@@ -162,8 +163,10 @@ public class LoginActivity extends BaseActivity {
         mAuthProgressDialog.setMessage(getString(R.string.progress_dialog_authenticating_with_firebase));
         mAuthProgressDialog.setCancelable(false);
         mForgotPassword = (TextView) findViewById(R.id.tv_forgot_pass);
+
 //        setupGoogleSignIn();
     }
+
 
 //
 //    private void setupGoogleSignIn() {

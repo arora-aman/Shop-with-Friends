@@ -31,6 +31,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initializeScreen();
+        onAuthChanged(FirebaseAuth.getInstance().getCurrentUser(), this);
         Log.d("mainActivity", "onCreate: " +  mEncodedEmail);
      }
 
@@ -105,7 +106,7 @@ public class MainActivity extends BaseActivity {
                     fragment = ShoppingListsFragment.newInstance(mEncodedEmail);
                     break;
                 case 1:
-                    fragment = ProfileFragment.newInstance();
+                    fragment = ProfileFragment.newInstance(mEncodedEmail);
                     break;
                 default:
                     fragment = ShoppingListsFragment.newInstance(mEncodedEmail);

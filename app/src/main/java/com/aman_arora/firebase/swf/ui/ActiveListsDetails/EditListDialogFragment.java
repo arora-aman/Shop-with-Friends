@@ -60,6 +60,7 @@ public abstract class EditListDialogFragment extends DialogFragment {
             public boolean onEditorAction(TextView textView, int actionID, KeyEvent keyEvent) {
                 if (actionID == EditorInfo.IME_ACTION_DONE) {
                    onPositiveClick();
+                    dismiss();
                 }
                 return true;
             }

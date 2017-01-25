@@ -26,7 +26,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -39,7 +38,7 @@ public class CreateAccountActivity extends BaseActivity {
     private EditText mEditTextUsernameCreate, mEditTextEmailCreate, mEditTextPasswordCreate;
     private static final String TAG = CreateAccountActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+//    private FirebaseAuth.AuthStateListener mAuthListener;
 
 
     @Override
@@ -48,21 +47,22 @@ public class CreateAccountActivity extends BaseActivity {
         setContentView(R.layout.activity_create_account);
         initializeScreen();
         mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    onAuthChanged(user, CreateAccountActivity.this);
-                }
-            }
-        };
+//        mAuthListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser user = firebaseAuth.getCurrentUser();
+//                if (user != null) {
+//                    startActivity(new Intent(CreateAccountActivity.this, MainActivity.class));
+//                    finish();
+//                }
+//            }
+//        };
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+//        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class CreateAccountActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (mAuthListener != null) mAuth.removeAuthStateListener(mAuthListener);
+//        if (mAuthListener != null) mAuth.removeAuthStateListener(mAuthListener);
     }
 
 
@@ -163,25 +163,26 @@ public class CreateAccountActivity extends BaseActivity {
     private void onRegistration(final AuthResult authResult) {
         Log.d(TAG, "onRegistration: Registering");
         final String encodedEmail = Utils.encodeEmail(mEditTextEmailCreate.getText().toString().toLowerCase().toLowerCase());
+        Log.d(TAG, "onRegistration: " + encodedEmail);
         HashMap<String, Object> timeStamp = new HashMap<String, Object>();
         timeStamp.put(Constants.TIMESTAMP_OBJECT_KEY, ServerValue.TIMESTAMP);
         User user = new User(mEditTextUsernameCreate.getText().toString(),
                 encodedEmail, timeStamp);
-
-        FirebaseUser currentUser = authResult.getUser();
+        writeEmailToSharedPreferences(encodedEmail, Constants.PROVIDER_EMAIL_PASSWORD);
+        final FirebaseUser currentUser = authResult.getUser();
         String uid = currentUser.getUid();
         Log.d(TAG, "onRegistration: " + uid);
-        UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder()
-                .setDisplayName(mEditTextUsernameCreate.getText().toString())
-                .build();
-
-        currentUser.updateProfile(userProfileChangeRequest)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d(TAG, "update_user_setName: " + task.isSuccessful());
-                    }
-                });
+//        UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder()
+//                .setDisplayName(mEditTextUsernameCreate.getText().toString())
+//                .build();
+//
+//        currentUser.updateProfile(userProfileChangeRequest)
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        Log.d(TAG, "update_user_setName: " + task.isSuccessful());
+//                    }
+//                });
 
 
         HashMap<String, Object> registeredUser = new HashMap<>();
@@ -192,9 +193,7 @@ public class CreateAccountActivity extends BaseActivity {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if (databaseError == null){
-                            writeEmailToSharedPreferences(encodedEmail, Constants.PROVIDER_EMAIL_PASSWORD);
-                            FirebaseUser newUser = authResult.getUser();
-                            newUser.sendEmailVerification();
+                            currentUser.sendEmailVerification();
                             startActivity(new Intent(CreateAccountActivity.this, MainActivity.class));
                             finish();
                         }

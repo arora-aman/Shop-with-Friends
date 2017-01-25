@@ -53,5 +53,8 @@ public final class Constants {
     public static final String KEY_PREF_SORT_ORDER_LISTS = "PERF_SORT_ORDER_LISTS";
     public static final String ORDER_BY_KEY = "orderByPushKey";
 
+    //Network Info
+    public static final String KEY_NETWORK_INFO = "networkIsConnected";
+
 
 }
