@@ -32,7 +32,7 @@
             android:background="@android:color/white"
             android:orientation="horizontal"
             android:padding="8dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/text_view_people_shopping"
@@ -52,10 +52,13 @@
 
 
         <ListView
+            android:layout_margin="10dp"
             android:id="@+id/list_view_active_lists_details"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scrollbars="none" />
+            android:scrollbars="none"
+            android:dividerHeight="5dp"
+            android:divider="@android:color/white"/>
 
     </LinearLayout>
 

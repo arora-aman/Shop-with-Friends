@@ -4,6 +4,6 @@
         <item name="android:layout_margin">16dp</item>
         <item name="fabSize">normal</item>
         <item name="rippleColor">@android:color/white</item>
-        <item name="backgroundTint">@color/primary</item>
+        <item name="backgroundTint">@color/primary_dark</item>
     </style>
 </resources>

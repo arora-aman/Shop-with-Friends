@@ -35,7 +35,7 @@
         <item name="android:layout_margin">0dp</item>
         <item name="fabSize">normal</item>
         <item name="rippleColor">@android:color/white</item>
-        <item name="backgroundTint">@color/primary</item>
+        <item name="backgroundTint">@color/primary_dark</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
