@@ -67,6 +67,7 @@ public class AddListDialogFragment extends DialogFragment {
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 if (actionId == EditorInfo.IME_ACTION_DONE || keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                     addShoppingList();
+                    dismiss();
                 }
                 return true;
             }
